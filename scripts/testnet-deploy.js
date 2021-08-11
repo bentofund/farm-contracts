@@ -13,7 +13,7 @@ async function main() {
 
   const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
   console.log();
-  const tokensFarm = await TokensFarm.deploy(contracts["HordToken"], rewardPerBlock, currentBlock);
+  const tokensFarm = await TokensFarm.deploy(contracts["RewardToken"], rewardPerBlock, currentBlock);
   await tokensFarm.deployed();
   console.log('TokensFarm deployed with address: ', tokensFarm.address);
   saveContractAddress(hre.network.name, 'TokensFarm', tokensFarm.address);
