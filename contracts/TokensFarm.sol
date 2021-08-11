@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 
-contract SingleSidedFarm is Ownable {
+contract TokensFarm is Ownable {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -41,8 +41,6 @@ contract SingleSidedFarm is Ownable {
     uint256 public rewardPerBlock;
     // Total rewards added to farm
     uint256 public totalRewards;
-    // Mapping to determine if LP token is added
-    mapping (address => bool) public isTokenAdded;
     // Info of each pool.
     PoolInfo public pool;
     // Info of each user that stakes LP tokens.
@@ -121,7 +119,6 @@ contract SingleSidedFarm is Ownable {
         return stake.amount;
     }
 
-
     // View function to see pending ERC20s for a user.
     function pending(address _user, uint256 stakeId) public view returns (uint256) {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
@@ -142,6 +139,12 @@ contract SingleSidedFarm is Ownable {
         }
 
         return stake.amount.mul(accERC20PerShare).div(1e36).sub(stake.rewardDebt);
+    }
+
+    // View function to see deposit timestamp for a user.
+    function depositTimestamp(address _user, uint256 stakeId) public view returns (uint256) {
+        StakeInfo storage stake = stakeInfo[_user][stakeId];
+        return stake.depositTime;
     }
 
     // View function for total reward the farm has yet to pay out.
@@ -263,19 +266,21 @@ contract SingleSidedFarm is Ownable {
         return stakeInfo[user].length;
     }
 
-    // Get user pending amounts and stakes
-    function getUserStakesAndPendingAmounts(address user) external view returns (uint256[] memory, uint256[] memory) {
+    // Get user pending amounts, stakes and deposit time
+    function getUserStakesAndPendingAmounts(address user) external view returns (uint256[] memory, uint256[] memory, uint256[] memory) {
         uint256 numberOfStakes = stakeInfo[user].length;
 
         uint256[] memory deposits = new uint256[](numberOfStakes);
         uint256[] memory pendingAmounts = new uint256[](numberOfStakes);
+        uint256[] memory depositTime = new uint256[](numberOfStakes);
 
         for (uint i = 0; i < numberOfStakes; i++) {
             deposits[i] = deposited(user, i);
             pendingAmounts[i] = pending(user, i);
+            depositTime[i] = depositTimestamp(user, i);
         }
 
-        return (deposits, pendingAmounts);
+        return (deposits, pendingAmounts, depositTime);
     }
 
     // Transfer ERC20 and update the required ERC20 to payout all rewards
