@@ -1,7 +1,6 @@
 const hre = require("hardhat");
 const { getSavedContractAddresses, saveContractAddress } = require('./utils')
 const { ethers, web3, upgrades } = hre
-const BigNumber = ethers.BigNumber
 
 async function main() {
 
@@ -10,22 +9,24 @@ async function main() {
   let currentBlock = await web3.eth.getBlockNumber();
   currentBlock += 100;
   console.log('startBlock: ' + currentBlock);
-  const rewardPerBlock = ethers.utils.parseEther("3.79"); //1 token per block
+  const rewardPerBlock = ethers.utils.parseEther("3.79"); //3.79 token per block
 
-  const Farm = await hre.ethers.getContractFactory('Farm');
-  const farm = await Farm.deploy(contracts["HordToken"], rewardPerBlock, currentBlock);
-  await farm.deployed();
-  console.log('Farm deployed with address: ', farm.address);
-  saveContractAddress(hre.network.name, 'Farm', farm.address);
+  const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
+  console.log();
+  const tokensFarm = await TokensFarm.deploy(contracts["HordToken"], rewardPerBlock, currentBlock);
+  await tokensFarm.deployed();
+  console.log('TokensFarm deployed with address: ', tokensFarm.address);
+  saveContractAddress(hre.network.name, 'TokensFarm', tokensFarm.address);
 
-  await farm.addPool(100, contracts["LpToken"], true);
+  // await tokensFarm.addPool(contracts["RewardToken"], true);
 
   // let totalRewards = toWeiDenomination(100800)// 10 days approximately
-  // await hord_token.approve(farm.address, totalRewards);
+  // const rewardToken = await hre.ethers.getContractAt("ERC20Mock", contracts["RewardToken"])
+  // await rewardToken.approve(tokensFarm.address, totalRewards);
   // console.log('Approved rewards token');
 
-  // console.log('Create new farming pool for hord lp token');
-  // await farm.fund(totalRewards);
+  // console.log('Create new farming pool for reward token');
+  // await tokensFarm.fund(totalRewards);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
