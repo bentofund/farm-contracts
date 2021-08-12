@@ -63,7 +63,7 @@ contract TokensFarm is Ownable {
     ) public {
         require(address(_erc20) != address(0x0), "Wrong token address.");
         require(_rewardPerBlock > 0, "Rewards per block must be > 0.");
-        require(startBlock >= block.timestamp, "Start block can not be in the past.");
+        require(startBlock >= block.number, "Start block can not be in the past.");
 
         erc20 = _erc20;
         rewardPerBlock = _rewardPerBlock;
