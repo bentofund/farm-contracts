@@ -28,7 +28,7 @@ function getSavedContractAbis(env) {
     } catch (err) {
         json = '{}'
     }
-    return JSON.parse(json[env])
+    return JSON.parse(json)
 }
 
 function saveContractAbis(network, contract, bytecode, env) {

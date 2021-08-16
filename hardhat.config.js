@@ -8,7 +8,7 @@ const branch = require('git-branch');
 
 
 // *** PK STATED BELOW IS DUMMY PK EXCLUSIVELY FOR TESTING PURPOSES ***
-const PK = `0x${"32c069bf3d38a060eacdc072eecd4ef63f0fc48895afbacbe185c97037789875"}`
+// const PK = `0x${"32c069bf3d38a060eacdc072eecd4ef63f0fc48895afbacbe185c97037789875"}`
 
 task('accounts', 'Prints the list of accounts', async () => {
   const accounts = await ethers.getSigners()
@@ -36,6 +36,14 @@ const generateTenderlySlug = () => {
 module.exports = {
   defaultNetwork: 'local',
   networks: {
+    rinkeby: {
+      // Infura public nodes
+      url: 'https://rinkeby.infura.io/v3/34ee2e319e7945caa976d4d1e24db07f',
+      accounts: [process.env.PK || PK],
+      chainId: 4,
+      gasPrice: 40000000000,
+      timeout: 50000
+    },
     ropsten: {
       // Infura public nodes
       url: 'https://ropsten.infura.io/v3/34ee2e319e7945caa976d4d1e24db07f',
