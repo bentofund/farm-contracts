@@ -3,5 +3,10 @@
         "StakingToken": "0x6b304e591bfb132d2c9a11e4F016270767200CFD",
         "RewardToken": "0x6b304e591bfb132d2c9a11e4F016270767200CFD",
         "TokensFarm": "0x2e7b084732F5C03293Bf556421923C824E0fa10f"
+    },
+    "local": {
+        "StakingToken": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+        "RewardToken": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+        "TokensFarm": "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F"
     }
 }

@@ -21,13 +21,13 @@ async function main() {
   // deploy farm contract
   contracts = getSavedContractAddresses()[hre.network.name];
   
-  let currentBlock = await web3.eth.getBlockNumber();
-  currentBlock += 50; // 10 mins
-  const rewardPerBlock = ethers.utils.parseEther("1.25"); //1.25 token per block
+  let currentTime = parseInt((new Date().getTime() / 1000).toFixed(0));
+  currentTime += 600; // 10 mins
+  const rewardPerSecond = ethers.utils.parseEther("0.1"); // 0.1 token per second
   
   const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
   console.log();
-  const tokensFarm = await TokensFarm.deploy(contracts["RewardToken"], rewardPerBlock, currentBlock, 150, true); // min time to stake = 30 mins
+  const tokensFarm = await TokensFarm.deploy(contracts["RewardToken"], rewardPerSecond, currentTime, 1800, true); // min time to stake = 30 mins
   await tokensFarm.deployed();
   console.log('TokensFarm deployed with address: ', tokensFarm.address);
   saveContractAddress(hre.network.name, 'TokensFarm', tokensFarm.address);
