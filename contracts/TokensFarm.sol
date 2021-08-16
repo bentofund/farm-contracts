@@ -23,8 +23,8 @@ contract TokensFarm is Ownable {
 
     // Info of each pool.
     struct PoolInfo {
-        IERC20 tokenStaked;             // Address of LP token contract.
-        uint256 lastRewardBlock;    // Last block number that ERC20s distribution occurs.
+        IERC20 tokenStaked;         // Address of LP token contract.
+        uint256 lastRewardTime;     // Last time number that ERC20s distribution occurs.
         uint256 accERC20PerShare;   // Accumulated ERC20s per share, times 1e36.
         uint256 totalDeposits;      // Total tokens deposited in the farm.
     }
@@ -37,18 +37,18 @@ contract TokensFarm is Ownable {
     IERC20 public erc20;
     // The total amount of ERC20 that's paid out as reward.
     uint256 public paidOut;
-    // ERC20 tokens rewarded per block.
-    uint256 public rewardPerBlock;
+    // ERC20 tokens rewarded per second.
+    uint256 public rewardPerSecond;
     // Total rewards added to farm
     uint256 public totalRewards;
     // Info of each pool.
     PoolInfo public pool;
     // Info of each user that stakes LP tokens.
     mapping (address => StakeInfo[]) public stakeInfo;
-    // The block number when farming starts.
-    uint256 public startBlock;
-    // The block number when farming ends.
-    uint256 public endBlock;
+    // The time when farming starts.
+    uint256 public startTime;
+    // The time when farming ends.
+    uint256 public endTime;
     // Early withdraw penalty
     EarlyWithdrawPenalty public penalty;
 
@@ -59,16 +59,16 @@ contract TokensFarm is Ownable {
 
 
     constructor(
-        IERC20 _erc20, uint256 _rewardPerBlock, uint256 _startBlock, uint256 _minTimeToStake, bool _isEarlyWithdrawAllowed
+        IERC20 _erc20, uint256 _rewardPerSecond, uint256 _startTime, uint256 _minTimeToStake, bool _isEarlyWithdrawAllowed
     ) public {
         require(address(_erc20) != address(0x0), "Wrong token address.");
-        require(_rewardPerBlock > 0, "Rewards per block must be > 0.");
-        require(_startBlock >= block.number, "Start block can not be in the past.");
+        require(_rewardPerSecond > 0, "Rewards per second must be > 0.");
+        require(_startTime >= block.timestamp, "Start timne can not be in the past.");
 
         erc20 = _erc20;
-        rewardPerBlock = _rewardPerBlock;
-        startBlock = _startBlock;
-        endBlock = _startBlock;
+        rewardPerSecond = _rewardPerSecond;
+        startTime = _startTime;
+        endTime = _startTime;
         minTimeToStake = _minTimeToStake;
         isEarlyWithdrawAllowed = _isEarlyWithdrawAllowed;
     }
@@ -79,7 +79,7 @@ contract TokensFarm is Ownable {
         penalty = _penalty;
     }
 
-    // Fund the farm, increase the end block
+    // Fund the farm, increase the end time
     function fund(uint256 _amount) external {
         fundInternal(_amount);
         erc20.safeTransferFrom(address(msg.sender), address(this), _amount);
@@ -87,10 +87,10 @@ contract TokensFarm is Ownable {
 
     // Internally fund the farm by adding farmed rewards by user to the end
     function fundInternal(uint _amount) internal {
-        require(block.number < endBlock, "fund: too late, the farm is closed");
+        require(block.timestamp < endTime, "fund: too late, the farm is closed");
         require(_amount > 0, "Amount must be greater than 0.");
-        // Compute new end block
-        endBlock += _amount.div(rewardPerBlock);
+        // Compute new end time
+        endTime += _amount.div(rewardPerSecond);
         // Increase farm total rewards
         totalRewards = totalRewards.add(_amount);
     }
@@ -103,11 +103,11 @@ contract TokensFarm is Ownable {
         if (_withUpdate) {
             updatePool();
         }
-        uint256 lastRewardBlock = block.number > startBlock ? block.number : startBlock;
+        uint256 lastRewardTime = block.timestamp > startTime ? block.timestamp : startTime;
 
         pool = PoolInfo({
             tokenStaked: _tokenStaked,
-            lastRewardBlock: lastRewardBlock,
+            lastRewardTime: lastRewardTime,
             accERC20PerShare: 0,
             totalDeposits: 0
         });
@@ -130,11 +130,11 @@ contract TokensFarm is Ownable {
         uint256 accERC20PerShare = pool.accERC20PerShare;
         uint256 tokenSupply = pool.totalDeposits;
 
-        if (block.number > pool.lastRewardBlock && tokenSupply != 0) {
-            uint256 lastBlock = block.number < endBlock ? block.number : endBlock;
-            uint256 blockToCompare = pool.lastRewardBlock < endBlock ? pool.lastRewardBlock : endBlock;
-            uint256 nrOfBlocks = lastBlock.sub(blockToCompare);
-            uint256 erc20Reward = nrOfBlocks.mul(rewardPerBlock);
+        if (block.timestamp > pool.lastRewardTime && tokenSupply != 0) {
+            uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
+            uint256 timeToCompare = pool.lastRewardTime < endTime ? pool.lastRewardTime : endTime;
+            uint256 nrOfSeconds = lastTime.sub(timeToCompare);
+            uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
             accERC20PerShare = accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
         }
 
@@ -149,34 +149,34 @@ contract TokensFarm is Ownable {
 
     // View function for total reward the farm has yet to pay out.
     function totalPending() external view returns (uint256) {
-        if (block.number <= startBlock) {
+        if (block.timestamp <= startTime) {
             return 0;
         }
 
-        uint256 lastBlock = block.number < endBlock ? block.number : endBlock;
-        return rewardPerBlock.mul(lastBlock - startBlock).sub(paidOut);
+        uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
+        return rewardPerSecond.mul(lastTime - startTime).sub(paidOut);
     }
 
     // Update reward variables of the given pool to be up-to-date.
     function updatePool() public {
-        uint256 lastBlock = block.number < endBlock ? block.number : endBlock;
+        uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
 
-        if (lastBlock <= pool.lastRewardBlock) {
+        if (lastTime <= pool.lastRewardTime) {
             return;
         }
 
         uint256 tokenSupply = pool.totalDeposits;
 
         if (tokenSupply == 0) {
-            pool.lastRewardBlock = lastBlock;
+            pool.lastRewardTime = lastTime;
             return;
         }
 
-        uint256 nrOfBlocks = lastBlock.sub(pool.lastRewardBlock);
-        uint256 erc20Reward = nrOfBlocks.mul(rewardPerBlock);
+        uint256 nrOfSeconds = lastTime.sub(pool.lastRewardTime);
+        uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
 
         pool.accERC20PerShare = pool.accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
-        pool.lastRewardBlock = block.number;
+        pool.lastRewardTime = block.timestamp;
     }
 
     // Deposit LP tokens to Farm for ERC20 allocation.

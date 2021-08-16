@@ -21,13 +21,13 @@ async function main() {
   // deploy farm contract
   contracts = getSavedContractAddresses()[hre.network.name];
   
-  let currentBlock = await web3.eth.getBlockNumber();
-  currentBlock += 50; // 10 mins
-  const rewardPerBlock = ethers.utils.parseEther("1.25"); //1.25 token per block
+  let currentTime = parseInt((new Date().getTime() / 1000).toFixed(0));
+  currentTime += 600; // 10 mins
+  const rewardPerSecond = ethers.utils.parseEther("0.1"); // 0.1 token per second
   
   const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
   console.log();
-  const tokensFarm = await TokensFarm.deploy(contracts["RewardToken"], rewardPerBlock, currentBlock, 150, true); // min time to stake = 30 mins
+  const tokensFarm = await TokensFarm.deploy(contracts["RewardToken"], rewardPerSecond, currentTime, 1800, true); // min time to stake = 30 mins
   await tokensFarm.deployed();
   console.log('TokensFarm deployed with address: ', tokensFarm.address);
   saveContractAddress(hre.network.name, 'TokensFarm', tokensFarm.address);
@@ -41,7 +41,7 @@ async function main() {
 
 
   // fund rewards
-  let totalRewards = ethers.utils.parseEther("5500")// 3 days approximately
+  let totalRewards = ethers.utils.parseEther("25920")// 3 days, 0.1*60*60*24*3 = 25920
   let tokenArtifiact = await hre.artifacts.readArtifact("ERC20Mock");
   rewardToken = await hre.ethers.getContractAt(tokenArtifiact.abi, contracts["RewardToken"])
   await rewardToken.approve(tokensFarm.address, totalRewards);
