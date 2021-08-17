@@ -51,6 +51,8 @@ contract TokensFarm is Ownable {
     uint256 public endTime;
     // Early withdraw penalty
     EarlyWithdrawPenalty public penalty;
+    // Total rewards withdrawn
+    uint256 public totalRewardsWithdrawn;
 
     // Events
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
@@ -240,6 +242,7 @@ contract TokensFarm is Ownable {
         stake.amount = stake.amount.sub(_amount);
         stake.rewardDebt = stake.amount.mul(pool.accERC20PerShare).div(1e36);
 
+        totalRewardsWithdrawn = totalRewardsWithdrawn.add(_amount);
         pool.tokenStaked.safeTransfer(address(msg.sender), _amount);
         pool.totalDeposits = pool.totalDeposits.sub(_amount);
 
@@ -252,6 +255,7 @@ contract TokensFarm is Ownable {
     function emergencyWithdraw(uint256 stakeId) external {
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
+        totalRewardsWithdrawn = totalRewardsWithdrawn.add(stake.amount);
         pool.tokenStaked.safeTransfer(address(msg.sender), stake.amount);
         pool.totalDeposits = pool.totalDeposits.sub(stake.amount);
 
