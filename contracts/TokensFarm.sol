@@ -51,8 +51,6 @@ contract TokensFarm is Ownable {
     uint256 public endTime;
     // Early withdraw penalty
     EarlyWithdrawPenalty public penalty;
-    // Total rewards withdrawn
-    uint256 public totalRewardsWithdrawn;
 
     // Events
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
@@ -238,11 +236,9 @@ contract TokensFarm is Ownable {
             erc20Transfer(msg.sender, pendingAmount);
         }
 
-
         stake.amount = stake.amount.sub(_amount);
         stake.rewardDebt = stake.amount.mul(pool.accERC20PerShare).div(1e36);
 
-        totalRewardsWithdrawn = totalRewardsWithdrawn.add(_amount);
         pool.tokenStaked.safeTransfer(address(msg.sender), _amount);
         pool.totalDeposits = pool.totalDeposits.sub(_amount);
 
@@ -255,7 +251,6 @@ contract TokensFarm is Ownable {
     function emergencyWithdraw(uint256 stakeId) external {
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
-        totalRewardsWithdrawn = totalRewardsWithdrawn.add(stake.amount);
         pool.tokenStaked.safeTransfer(address(msg.sender), stake.amount);
         pool.totalDeposits = pool.totalDeposits.sub(stake.amount);
 
@@ -285,6 +280,23 @@ contract TokensFarm is Ownable {
         }
 
         return (deposits, pendingAmounts, depositTime);
+    }
+
+    // Get total rewards locked/unlocked
+    function getTotalRewardsLockedUnlocked() external view returns (uint256, uint256) {
+        uint256 totalRewardsLocked;
+        uint256 totalRewardsUnlocked;
+
+        if (block.timestamp <= startTime) {
+            totalRewardsUnlocked = 0;
+            totalRewardsLocked = totalRewards;
+        } else {
+            uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
+            totalRewardsUnlocked = rewardPerSecond.mul(lastTime - startTime);
+            totalRewardsLocked = totalRewards - totalRewardsUnlocked;
+        }
+
+        return (totalRewardsUnlocked, totalRewardsLocked);
     }
 
     // Transfer ERC20 and update the required ERC20 to payout all rewards
