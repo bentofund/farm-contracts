@@ -41,7 +41,7 @@ async function main() {
 
 
   // fund rewards
-  let totalRewards = ethers.utils.parseEther("25920")// 3 days, 0.1*60*60*24*3 = 25920
+  let totalRewards = ethers.utils.parseEther("25920");  // 3 days, 0.1*60*60*24*3 = 25920
   let tokenArtifiact = await hre.artifacts.readArtifact("ERC20Mock");
   rewardToken = await hre.ethers.getContractAt(tokenArtifiact.abi, contracts["RewardToken"])
   await rewardToken.approve(tokensFarm.address, totalRewards);
