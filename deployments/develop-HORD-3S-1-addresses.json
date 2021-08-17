@@ -2,6 +2,6 @@
     "ropsten": {
         "StakingToken": "0x6b304e591bfb132d2c9a11e4F016270767200CFD",
         "RewardToken": "0x6b304e591bfb132d2c9a11e4F016270767200CFD",
-        "TokensFarm": "0xCa358ab097F807d1111836bF39C5c1640C225eb6"
+        "TokensFarm": "0x150dC7B77b42ee0C0C7089415d348c23558dF5Ca"
     }
 }
