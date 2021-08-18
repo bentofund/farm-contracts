@@ -21,13 +21,10 @@ contract TokensFarm is Ownable {
         uint256 depositTime;        // Time when user deposited.
     }
 
-    // Info of each pool.
-    struct PoolInfo {
-        IERC20 tokenStaked;         // Address of LP token contract.
-        uint256 lastRewardTime;     // Last time number that ERC20s distribution occurs.
-        uint256 accERC20PerShare;   // Accumulated ERC20s per share, times 1e36.
-        uint256 totalDeposits;      // Total tokens deposited in the farm.
-    }
+    IERC20 tokenStaked;         // Address of ERC20 token contract.
+    uint256 lastRewardTime;     // Last time number that ERC20s distribution occurs.
+    uint256 accERC20PerShare;   // Accumulated ERC20s per share, times 1e36.
+    uint256 totalDeposits;      // Total tokens deposited in the farm.
 
     // If contractor allows early withdraw on stakes
     bool public isEarlyWithdrawAllowed;
@@ -41,9 +38,7 @@ contract TokensFarm is Ownable {
     uint256 public rewardPerSecond;
     // Total rewards added to farm
     uint256 public totalRewards;
-    // Info of each pool.
-    PoolInfo public pool;
-    // Info of each user that stakes LP tokens.
+    // Info of each user that stakes ERC20 tokens.
     mapping (address => StakeInfo[]) public stakeInfo;
     // The time when farming starts.
     uint256 public startTime;
@@ -59,7 +54,13 @@ contract TokensFarm is Ownable {
 
 
     constructor(
-        IERC20 _erc20, uint256 _rewardPerSecond, uint256 _startTime, uint256 _minTimeToStake, bool _isEarlyWithdrawAllowed
+        IERC20 _erc20,
+        uint256 _rewardPerSecond,
+        uint256 _startTime,
+        uint256 _minTimeToStake,
+        bool _isEarlyWithdrawAllowed,
+        EarlyWithdrawPenalty _penalty,
+        IERC20 _tokenStaked
     ) public {
         require(address(_erc20) != address(0x0), "Wrong token address.");
         require(_rewardPerSecond > 0, "Rewards per second must be > 0.");
@@ -71,22 +72,30 @@ contract TokensFarm is Ownable {
         endTime = _startTime;
         minTimeToStake = _minTimeToStake;
         isEarlyWithdrawAllowed = _isEarlyWithdrawAllowed;
+
+        _setEarlyWithdrawPenalty(_penalty);
+        _addPool(_tokenStaked);
+    }
+
+    // Set minimun time to stake
+    function setMinTimeToStake(uint256 _minTimeToStake) external {
+        minTimeToStake = _minTimeToStake;
     }
 
     // Set early withdrawal penalty, if applicable
-    function setEarlyWithdrawPenalty(EarlyWithdrawPenalty _penalty) external onlyOwner {
+    function _setEarlyWithdrawPenalty(EarlyWithdrawPenalty _penalty) internal {
         require(isEarlyWithdrawAllowed, "Early withdrawal is not allowed, so there is no penalty.");
         penalty = _penalty;
     }
 
     // Fund the farm, increase the end time
     function fund(uint256 _amount) external {
-        fundInternal(_amount);
+        _fundInternal(_amount);
         erc20.safeTransferFrom(address(msg.sender), address(this), _amount);
     }
 
     // Internally fund the farm by adding farmed rewards by user to the end
-    function fundInternal(uint _amount) internal {
+    function _fundInternal(uint _amount) internal {
         require(block.timestamp < endTime, "fund: too late, the farm is closed");
         require(_amount > 0, "Amount must be greater than 0.");
         // Compute new end time
@@ -95,25 +104,20 @@ contract TokensFarm is Ownable {
         totalRewards = totalRewards.add(_amount);
     }
 
-    // Add a new lp to the pool. Can only be called by the owner.
-    function addPool(IERC20 _tokenStaked, bool _withUpdate) external onlyOwner {
+    // Add a new ERC20 token to the pool. Can only be called by the owner.
+    function _addPool(IERC20 _tokenStaked) internal {
         require(address(_tokenStaked) != address(0x0), "Must input valid address.");
-        require(address(pool.tokenStaked) == address(0x0), "Pool can be set only once.");
+        require(address(tokenStaked) == address(0x0), "Pool can be set only once.");
 
-        if (_withUpdate) {
-            updatePool();
-        }
-        uint256 lastRewardTime = block.timestamp > startTime ? block.timestamp : startTime;
+        uint256 _lastRewardTime = block.timestamp > startTime ? block.timestamp : startTime;
 
-        pool = PoolInfo({
-            tokenStaked: _tokenStaked,
-            lastRewardTime: lastRewardTime,
-            accERC20PerShare: 0,
-            totalDeposits: 0
-        });
+        tokenStaked = _tokenStaked;
+        lastRewardTime = _lastRewardTime;
+        accERC20PerShare = 0;
+        totalDeposits = 0;
     }
 
-    // View function to see deposited LP for a user.
+    // View function to see deposited ERC20 token for a user.
     function deposited(address _user, uint256 stakeId) public view returns (uint256) {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
         return stake.amount;
@@ -127,18 +131,18 @@ contract TokensFarm is Ownable {
             return 0;
         }
 
-        uint256 accERC20PerShare = pool.accERC20PerShare;
-        uint256 tokenSupply = pool.totalDeposits;
+        uint256 _accERC20PerShare = accERC20PerShare;
+        uint256 tokenSupply = totalDeposits;
 
-        if (block.timestamp > pool.lastRewardTime && tokenSupply != 0) {
+        if (block.timestamp > lastRewardTime && tokenSupply != 0) {
             uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
-            uint256 timeToCompare = pool.lastRewardTime < endTime ? pool.lastRewardTime : endTime;
+            uint256 timeToCompare = lastRewardTime < endTime ? lastRewardTime : endTime;
             uint256 nrOfSeconds = lastTime.sub(timeToCompare);
             uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
-            accERC20PerShare = accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
+            _accERC20PerShare = _accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
         }
 
-        return stake.amount.mul(accERC20PerShare).div(1e36).sub(stake.rewardDebt);
+        return stake.amount.mul(_accERC20PerShare).div(1e36).sub(stake.rewardDebt);
     }
 
     // View function to see deposit timestamp for a user.
@@ -161,25 +165,25 @@ contract TokensFarm is Ownable {
     function updatePool() public {
         uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
 
-        if (lastTime <= pool.lastRewardTime) {
+        if (lastTime <= lastRewardTime) {
             return;
         }
 
-        uint256 tokenSupply = pool.totalDeposits;
+        uint256 tokenSupply = totalDeposits;
 
         if (tokenSupply == 0) {
-            pool.lastRewardTime = lastTime;
+            lastRewardTime = lastTime;
             return;
         }
 
-        uint256 nrOfSeconds = lastTime.sub(pool.lastRewardTime);
+        uint256 nrOfSeconds = lastTime.sub(lastRewardTime);
         uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
 
-        pool.accERC20PerShare = pool.accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
-        pool.lastRewardTime = block.timestamp;
+        accERC20PerShare = accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
+        lastRewardTime = block.timestamp;
     }
 
-    // Deposit LP tokens to Farm for ERC20 allocation.
+    // Deposit ERC20 tokens to Farm for ERC20 allocation.
     function deposit(uint256 _amount) external {
         StakeInfo memory stake;
 
@@ -187,13 +191,13 @@ contract TokensFarm is Ownable {
         updatePool();
 
         // Take token and transfer to contract
-        pool.tokenStaked.safeTransferFrom(address(msg.sender), address(this), _amount);
+        tokenStaked.safeTransferFrom(address(msg.sender), address(this), _amount);
         // Add amount to the pool total deposits
-        pool.totalDeposits = pool.totalDeposits.add(_amount);
+        totalDeposits = totalDeposits.add(_amount);
 
         // Update user accounting
         stake.amount = _amount;
-        stake.rewardDebt = stake.amount.mul(pool.accERC20PerShare).div(1e36);
+        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
         stake.depositTime = block.timestamp;
 
         uint stakeId = stakeInfo[msg.sender].length;
@@ -205,42 +209,44 @@ contract TokensFarm is Ownable {
         emit Deposit(msg.sender, stakeId, _amount);
     }
 
-    // Withdraw LP tokens from Farm.
+    // Withdraw ERC20 tokens from Farm.
     function withdraw(uint256 _amount, uint256 stakeId) external {
+        bool minimalTimeStakeRespected;
+
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
         require(stake.amount >= _amount, "withdraw: can't withdraw more than deposit");
 
         updatePool();
 
-        bool minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
-
         // if early withdraw is not allowed, user can't withdraw funds before
         if(!isEarlyWithdrawAllowed) {
+            minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
             // Check if user has respected minimal time to stake, require it.
-           require(minimalTimeStakeRespected, "User can not withdraw funds yet.");
+            require(minimalTimeStakeRespected, "User can not withdraw funds yet.");
         }
 
         // Compute pending rewards amount of user rewards
-        uint256 pendingAmount = stake.amount.mul(pool.accERC20PerShare).div(1e36).sub(stake.rewardDebt);
+        uint256 pendingAmount = stake.amount.mul(accERC20PerShare).div(1e36).sub(stake.rewardDebt);
 
         // Penalties in case user didn't stake enough time
+        minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
         if(penalty == EarlyWithdrawPenalty.BURN_REWARDS && !minimalTimeStakeRespected) {
             // Burn to address (1)
-            erc20Transfer(address(1), pendingAmount);
+            _erc20Transfer(address(1), pendingAmount);
         } else if (penalty == EarlyWithdrawPenalty.REDISTRIBUTE_REWARDS && !minimalTimeStakeRespected) {
             // Re-fund the farm
-            fundInternal(pendingAmount);
+            _fundInternal(pendingAmount);
         } else {
             // In case either there's no penalty
-            erc20Transfer(msg.sender, pendingAmount);
+            _erc20Transfer(msg.sender, pendingAmount);
         }
 
         stake.amount = stake.amount.sub(_amount);
-        stake.rewardDebt = stake.amount.mul(pool.accERC20PerShare).div(1e36);
+        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
 
-        pool.tokenStaked.safeTransfer(address(msg.sender), _amount);
-        pool.totalDeposits = pool.totalDeposits.sub(_amount);
+        tokenStaked.safeTransfer(address(msg.sender), _amount);
+        totalDeposits = totalDeposits.sub(_amount);
 
         // Emit Withdraw event
         emit Withdraw(msg.sender, stakeId, _amount);
@@ -251,8 +257,15 @@ contract TokensFarm is Ownable {
     function emergencyWithdraw(uint256 stakeId) external {
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
-        pool.tokenStaked.safeTransfer(address(msg.sender), stake.amount);
-        pool.totalDeposits = pool.totalDeposits.sub(stake.amount);
+        // if early withdraw is not allowed, user can't withdraw funds before
+        if(!isEarlyWithdrawAllowed) {
+            bool minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
+            // Check if user has respected minimal time to stake, require it.
+            require(minimalTimeStakeRespected, "User can not withdraw funds yet.");
+        }
+
+        tokenStaked.safeTransfer(address(msg.sender), stake.amount);
+        totalDeposits = totalDeposits.sub(stake.amount);
 
         emit EmergencyWithdraw(msg.sender, stakeId, stake.amount);
 
@@ -300,7 +313,7 @@ contract TokensFarm is Ownable {
     }
 
     // Transfer ERC20 and update the required ERC20 to payout all rewards
-    function erc20Transfer(address _to, uint256 _amount) internal {
+    function _erc20Transfer(address _to, uint256 _amount) internal {
         erc20.transfer(_to, _amount);
         paidOut += _amount;
     }
