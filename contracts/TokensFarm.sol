@@ -5,14 +5,17 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 
-contract TokensFarm is Ownable {
+contract TokensFarm is Ownable, ReentrancyGuard {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     enum EarlyWithdrawPenalty { NO_PENALTY, BURN_REWARDS, REDISTRIBUTE_REWARDS }
+
+    address public constant congress = 0x28f0178A20f8D423c139188a09FdCCC70Ab1414F;
 
     // Info of each user.
     struct StakeInfo {
@@ -46,12 +49,19 @@ contract TokensFarm is Ownable {
     uint256 public endTime;
     // Early withdraw penalty
     EarlyWithdrawPenalty public penalty;
+    // Counter for funding
+    uint256 fundCounter;
 
     // Events
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
     event Withdraw(address indexed user, uint256 stakeId, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 stakeId, uint256 amount);
+    event EarlyWithdrawPenaltyChage(EarlyWithdrawPenalty penalty);
 
+    modifier validateStakeByStakeId(address _user, uint256 stakeId) {
+        require(stakeId < stakeInfo[_user].length, "Stake does not exist");
+        _;
+    }
 
     constructor(
         IERC20 _erc20,
@@ -86,12 +96,20 @@ contract TokensFarm is Ownable {
     function _setEarlyWithdrawPenalty(EarlyWithdrawPenalty _penalty) internal {
         require(isEarlyWithdrawAllowed, "Early withdrawal is not allowed, so there is no penalty.");
         penalty = _penalty;
+
+        emit EarlyWithdrawPenaltyChage(penalty);
     }
 
     // Fund the farm, increase the end time
     function fund(uint256 _amount) external {
+        fundCounter = fundCounter.add(1);
+        
         _fundInternal(_amount);
         erc20.safeTransferFrom(address(msg.sender), address(this), _amount);
+
+        if (fundCounter == 2) {
+            transferOwnership(address(congress));
+        }
     }
 
     // Internally fund the farm by adding farmed rewards by user to the end
@@ -118,13 +136,13 @@ contract TokensFarm is Ownable {
     }
 
     // View function to see deposited ERC20 token for a user.
-    function deposited(address _user, uint256 stakeId) public view returns (uint256) {
+    function deposited(address _user, uint256 stakeId) public view validateStakeByStakeId(_user, stakeId) returns (uint256) {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
         return stake.amount;
     }
 
     // View function to see pending ERC20s for a user.
-    function pending(address _user, uint256 stakeId) public view returns (uint256) {
+    function pending(address _user, uint256 stakeId) public view validateStakeByStakeId(_user, stakeId) returns (uint256) {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
 
         if(stake.amount == 0) {
@@ -146,7 +164,7 @@ contract TokensFarm is Ownable {
     }
 
     // View function to see deposit timestamp for a user.
-    function depositTimestamp(address _user, uint256 stakeId) public view returns (uint256) {
+    function depositTimestamp(address _user, uint256 stakeId) public view validateStakeByStakeId(_user, stakeId) returns (uint256) {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
         return stake.depositTime;
     }
@@ -210,7 +228,7 @@ contract TokensFarm is Ownable {
     }
 
     // Withdraw ERC20 tokens from Farm.
-    function withdraw(uint256 _amount, uint256 stakeId) external {
+    function withdraw(uint256 _amount, uint256 stakeId) external nonReentrant validateStakeByStakeId(msg.sender, stakeId) {
         bool minimalTimeStakeRespected;
 
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
@@ -254,7 +272,7 @@ contract TokensFarm is Ownable {
 
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
-    function emergencyWithdraw(uint256 stakeId) external {
+    function emergencyWithdraw(uint256 stakeId) external nonReentrant validateStakeByStakeId(msg.sender, stakeId) {
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
         // if early withdraw is not allowed, user can't withdraw funds before
