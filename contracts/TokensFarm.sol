@@ -50,7 +50,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     // Counter for funding
     uint256 fundCounter;
     // Congress address
-    address congressAddress;
+    address public congressAddress;
 
     // Events
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
