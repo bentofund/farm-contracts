@@ -15,8 +15,6 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
     enum EarlyWithdrawPenalty { BURN_REWARDS, REDISTRIBUTE_REWARDS }
 
-    address public constant congress = 0x28f0178A20f8D423c139188a09FdCCC70Ab1414F;
-
     // Info of each user.
     struct StakeInfo {
         uint256 amount;             // How many tokens the user has provided.
@@ -51,6 +49,8 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     EarlyWithdrawPenalty public penalty;
     // Counter for funding
     uint256 fundCounter;
+    // Congress address
+    address congressAddress;
 
     // Events
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
@@ -70,7 +70,8 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         uint256 _minTimeToStake,
         bool _isEarlyWithdrawAllowed,
         EarlyWithdrawPenalty _penalty,
-        IERC20 _tokenStaked
+        IERC20 _tokenStaked,
+        address _congressAddress
     ) public {
         require(address(_erc20) != address(0x0), "Wrong token address.");
         require(_rewardPerSecond > 0, "Rewards per second must be > 0.");
@@ -82,6 +83,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         endTime = _startTime;
         minTimeToStake = _minTimeToStake;
         isEarlyWithdrawAllowed = _isEarlyWithdrawAllowed;
+        congressAddress = _congressAddress;
 
         _setEarlyWithdrawPenalty(_penalty);
         _addPool(_tokenStaked);
@@ -108,7 +110,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         erc20.safeTransferFrom(address(msg.sender), address(this), _amount);
 
         if (fundCounter == 2) {
-            transferOwnership(address(congress));
+            transferOwnership(congressAddress);
         }
     }
 
