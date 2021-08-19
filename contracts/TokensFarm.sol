@@ -12,7 +12,7 @@ contract TokensFarm is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    enum EarlyWithdrawPenalty { BURN_REWARDS, REDISTRIBUTE_REWARDS }
+    enum EarlyWithdrawPenalty { NO_PENALTY, BURN_REWARDS, REDISTRIBUTE_REWARDS }
 
     // Info of each user.
     struct StakeInfo {
