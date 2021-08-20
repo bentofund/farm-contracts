@@ -267,7 +267,7 @@ contract TokensFarm is Ownable {
     }
 
     // Withdraw LP tokens from Farm.
-    function withdraw(uint256 _amount, uint256 stakeId) external {
+    function withdraw(uint256 _amount, uint256 stakeId) external payable {
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
         require(stake.amount >= _amount, "withdraw: can't withdraw more than deposit");
@@ -362,12 +362,22 @@ contract TokensFarm is Ownable {
 
     // Transfer ERC20 and update the required ERC20 to payout all rewards
     function erc20Transfer(address _to, uint256 _amount) internal {
-        // collect reward fee
-        uint256 feeAmount = _amount.div(100).mul(rewardFeePercent);
-        uint256 rewardAmount = _amount.div(feeAmount);
-        erc20.transfer(feeCollector, feeAmount);
-        // send reward
-        erc20.transfer(_to, rewardAmount);
-        paidOut += _amount;
+        if (isFlatFeeAllowed) {
+            // Collect flat fee
+            require(msg.value >= flatFeeAmount);
+            (bool sent,) = payable(feeCollector).call{value: msg.value}("");
+            require(sent, "Failed to end flat fee");
+            // send reward
+            erc20.transfer(_to, _amount);
+            paidOut += _amount;
+        } else {
+            // Collect reward fee
+            uint256 feeAmount = _amount.div(100).mul(rewardFeePercent);
+            uint256 rewardAmount = _amount.div(feeAmount);
+            erc20.transfer(feeCollector, feeAmount);
+            // send reward
+            erc20.transfer(_to, rewardAmount);
+            paidOut += _amount;
+        }
     }
 }
