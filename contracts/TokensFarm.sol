@@ -56,7 +56,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
     event Withdraw(address indexed user, uint256 stakeId, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 stakeId, uint256 amount);
-    event EarlyWithdrawPenaltyChage(EarlyWithdrawPenalty penalty);
+    event EarlyWithdrawPenaltyChange(EarlyWithdrawPenalty penalty);
 
     modifier validateStakeByStakeId(address _user, uint256 stakeId) {
         require(stakeId < stakeInfo[_user].length, "Stake does not exist");
@@ -90,7 +90,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     }
 
     // Set minimun time to stake
-    function setMinTimeToStake(uint256 _minTimeToStake) external {
+    function setMinTimeToStake(uint256 _minTimeToStake) external onlyOwner {
         minTimeToStake = _minTimeToStake;
     }
 
@@ -99,7 +99,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         require(isEarlyWithdrawAllowed, "Early withdrawal is not allowed, so there is no penalty.");
         penalty = _penalty;
 
-        emit EarlyWithdrawPenaltyChage(penalty);
+        emit EarlyWithdrawPenaltyChange(penalty);
     }
 
     // Fund the farm, increase the end time
