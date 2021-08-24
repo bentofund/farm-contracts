@@ -83,9 +83,8 @@ contract TokensFarm is Ownable {
         require(address(_erc20) != address(0x0), "Wrong token address.");
         require(_rewardPerSecond > 0, "Rewards per second must be > 0.");
         require(_startTime >= block.timestamp, "Start timne can not be in the past.");
-        require(_stakeFeePercent <= 100, "Stake fee must be < 100.");
-        require(_rewardFeePercent <= 100, "Reward fee must be < 100.");
-        require(_flatFeeAmount <= 100, "Flat fee must be < 100.");
+        require(_stakeFeePercent < 100, "Stake fee must be < 100.");
+        require(_rewardFeePercent < 100, "Reward fee must be < 100.");
         require(_feeCollector != address(0x0), "Wrong fee collector address.");
 
         erc20 = _erc20;
@@ -226,7 +225,7 @@ contract TokensFarm is Ownable {
             // Collect flat fee
             require(msg.value >= flatFeeAmount);
             (bool sent,) = payable(feeCollector).call{value: msg.value}("");
-            require(sent, "Failed to end flat fee");
+            require(sent, "Failed to send flat fee");
 
             // Add amount to the pool total deposits
             pool.totalDeposits = pool.totalDeposits.add(_amount);
