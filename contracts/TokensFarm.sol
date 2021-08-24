@@ -51,6 +51,16 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     uint256 fundCounter;
     // Congress address
     address public congressAddress;
+    // Stake fee percent
+    uint256 public stakeFeePercent;
+    // Reward fee percent
+    uint256 public rewardFeePercent;
+    // Fee collector address
+    address payable private feeCollector;
+    // Flat fee amount
+    uint256 public flatFeeAmount;
+    // Fee option
+    bool public isFlatFeeAllowed;
 
     // Events
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
@@ -71,11 +81,19 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         bool _isEarlyWithdrawAllowed,
         EarlyWithdrawPenalty _penalty,
         IERC20 _tokenStaked,
-        address _congressAddress
+        address _congressAddress,
+        uint256 _stakeFeePercent,
+        uint256 _rewardFeePercent,
+        uint256 _flatFeeAmount,
+        address payable _feeCollector,
+        bool _isFlatFeeAllowed
     ) public {
         require(address(_erc20) != address(0x0), "Wrong token address.");
         require(_rewardPerSecond > 0, "Rewards per second must be > 0.");
         require(_startTime >= block.timestamp, "Start timne can not be in the past.");
+        require(_stakeFeePercent < 100, "Stake fee must be < 100.");
+        require(_rewardFeePercent < 100, "Reward fee must be < 100.");
+        require(_feeCollector != address(0x0), "Wrong fee collector address.");
 
         erc20 = _erc20;
         rewardPerSecond = _rewardPerSecond;
@@ -84,6 +102,11 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         minTimeToStake = _minTimeToStake;
         isEarlyWithdrawAllowed = _isEarlyWithdrawAllowed;
         congressAddress = _congressAddress;
+        stakeFeePercent = _stakeFeePercent;
+        rewardFeePercent = _rewardFeePercent;
+        flatFeeAmount = _flatFeeAmount;
+        feeCollector = _feeCollector;
+        isFlatFeeAllowed = _isFlatFeeAllowed;
 
         _setEarlyWithdrawPenalty(_penalty);
         _addPool(_tokenStaked);
@@ -92,6 +115,12 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     // Set minimun time to stake
     function setMinTimeToStake(uint256 _minTimeToStake) external onlyOwner {
         minTimeToStake = _minTimeToStake;
+    }
+
+    // Set fee collector address
+    function setFeeCollector(address payable _feeCollector) external onlyOwner {
+        require(_feeCollector != address(0x0), "Wrong fee collector address.");
+        feeCollector = _feeCollector;
     }
 
     // Set early withdrawal penalty, if applicable
@@ -204,7 +233,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     }
 
     // Deposit ERC20 tokens to Farm for ERC20 allocation.
-    function deposit(uint256 _amount) external {
+    function deposit(uint256 _amount) external payable {
         StakeInfo memory stake;
 
         // Update pool
@@ -212,25 +241,52 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
         // Take token and transfer to contract
         tokenStaked.safeTransferFrom(address(msg.sender), address(this), _amount);
-        // Add amount to the pool total deposits
-        totalDeposits = totalDeposits.add(_amount);
+        if (isFlatFeeAllowed) {
+            // Collect flat fee
+            require(msg.value >= flatFeeAmount);
+            (bool sent,) = payable(feeCollector).call{value: msg.value}("");
+            require(sent, "Failed to send flat fee");
 
-        // Update user accounting
-        stake.amount = _amount;
-        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
-        stake.depositTime = block.timestamp;
+            // Add amount to the pool total deposits
+            totalDeposits = totalDeposits.add(_amount);
 
-        uint stakeId = stakeInfo[msg.sender].length;
+            // Update user accounting
+            stake.amount = _amount;
+            stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
+            stake.depositTime = block.timestamp;
 
-        // Push new stake to array of stakes for user
-        stakeInfo[msg.sender].push(stake);
+            uint stakeId = stakeInfo[msg.sender].length;
 
-        // Emit deposit event
-        emit Deposit(msg.sender, stakeId, _amount);
+            // Push new stake to array of stakes for user
+            stakeInfo[msg.sender].push(stake);
+
+            // Emit deposit event
+            emit Deposit(msg.sender, stakeId, _amount);
+        } else {
+            // Collect stake fee
+            uint256 feeAmount = _amount.div(100).mul(stakeFeePercent);
+            uint256 stakeAmount = _amount.div(feeAmount);
+            tokenStaked.safeTransfer(feeCollector, feeAmount);
+            // Add amount to the pool total deposits
+            totalDeposits = totalDeposits.add(stakeAmount);
+
+            // Update user accounting
+            stake.amount = stakeAmount;
+            stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
+            stake.depositTime = block.timestamp;
+
+            uint stakeId = stakeInfo[msg.sender].length;
+
+            // Push new stake to array of stakes for user
+            stakeInfo[msg.sender].push(stake);
+
+            // Emit deposit event
+            emit Deposit(msg.sender, stakeId, stakeAmount);
+        }
     }
 
     // Withdraw ERC20 tokens from Farm.
-    function withdraw(uint256 _amount, uint256 stakeId) external nonReentrant validateStakeByStakeId(msg.sender, stakeId) {
+    function withdraw(uint256 _amount, uint256 stakeId) external payable nonReentrant validateStakeByStakeId(msg.sender, stakeId) {
         bool minimalTimeStakeRespected;
 
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
@@ -334,7 +390,22 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
     // Transfer ERC20 and update the required ERC20 to payout all rewards
     function _erc20Transfer(address _to, uint256 _amount) internal {
-        erc20.transfer(_to, _amount);
-        paidOut += _amount;
+        if (isFlatFeeAllowed) {
+            // Collect flat fee
+            require(msg.value >= flatFeeAmount);
+            (bool sent,) = payable(feeCollector).call{value: msg.value}("");
+            require(sent, "Failed to end flat fee");
+            // send reward
+            erc20.transfer(_to, _amount);
+            paidOut += _amount;
+        } else {
+            // Collect reward fee
+            uint256 feeAmount = _amount.div(100).mul(rewardFeePercent);
+            uint256 rewardAmount = _amount.div(feeAmount);
+            erc20.transfer(feeCollector, feeAmount);
+            // send reward
+            erc20.transfer(_to, rewardAmount);
+            paidOut += _amount;
+        }
     }
 }
