@@ -17,8 +17,8 @@
         "rewardTokenAmount": 100000,
         "minTimeToStake": 10,
         "farmPeriod": 30,
-        "isEarlyWithdrawAllowed": false,
-        "penaltyType": 0,
+        "isEarlyWithdrawAllowed": true,
+        "penaltyType": 2,
         "congressAddress": "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4"
     }
 }

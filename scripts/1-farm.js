@@ -21,7 +21,7 @@ async function main() {
     rewardPerSecond,
     config.startTime,
     minTimeToStake,
-    true,
+    config.isEarlyWithdrawAllowed,
     config.penaltyType,
     config.stakingTokenAddress,
     config.congressAddress

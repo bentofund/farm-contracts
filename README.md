@@ -19,8 +19,8 @@ USERNAME=2key
         "rewardTokenAddress": Reward_Token_Address,
         "startTime": Farm_Start_Time,
         "rewardTokenAmount": Reward_Token_Amount,
-        "minTimeToStake": Min_Time_To_Stake,
-        "farmPeriod": Farm_Period,
+        "minTimeToStake": Min_Time_To_Stake (Days),
+        "farmPeriod": Farm_Period (Days),
         "isEarlyWithdrawAllowed": true/false,
         "penaltyType": 0 - NO_PENALTY, 1 - BURN_REWARDS, 2 - REDISTRIBUTE_REWARDS,
         "congressAddress": Congress_Address
