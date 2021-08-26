@@ -1,16 +1,5 @@
 {
     "mainnet": {
-        "stakingTokenAddress": "0x43A96962254855F16b925556f9e97BE436A43448",
-        "rewardTokenAddress": "0x43A96962254855F16b925556f9e97BE436A43448",
-        "startTime": 1630022400,
-        "rewardTokenAmount": 100000,
-        "minTimeToStake": 10,
-        "farmPeriod": 30,
-        "isEarlyWithdrawAllowed": false,
-        "penaltyType": 0,
-        "congressAddress": "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4"
-    },
-    "ropsten": {
         "stakingTokenAddress": "0x6b304e591bfb132d2c9a11e4F016270767200CFD",
         "rewardTokenAddress": "0x6b304e591bfb132d2c9a11e4F016270767200CFD",
         "startTime": 1630022400,
