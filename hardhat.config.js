@@ -8,7 +8,7 @@ const branch = require('git-branch');
 
 
 // *** PK STATED BELOW IS DUMMY PK EXCLUSIVELY FOR TESTING PURPOSES ***
-const PK = `0x${"32c069bf3d38a060eacdc072eecd4ef63f0fc48895afbacbe185c97037789875"}`
+// const PK = `0x${"32c069bf3d38a060eacdc072eecd4ef63f0fc48895afbacbe185c97037789875"}`
 
 task('accounts', 'Prints the list of accounts', async () => {
   const accounts = await ethers.getSigners()
