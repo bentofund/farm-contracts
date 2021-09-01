@@ -32,9 +32,13 @@ USERNAME=2key
 - `npx hardhat clean` (Clears the cache and deletes all artifacts)
 - `npx hardhat compile` (Compiles the entire project, building all artifacts)
 
-#### Deploy code 
-- `npx hardhat node` (Starts a JSON-RPC server on top of Hardhat Network)
+#### Deploy code
 - `npx hardhat run --network {network} scripts/{desired_deployment_script}`
+
+#### Deploy code example: 
+- `npx hardhat run --network {network_name} scripts/1-farm.js`
+- `npx hardhat run --network {network_name} scripts/2-fund-approve.js`
+- `npx hardhat run --network {network_name} scripts/3-fund-reward.js`
 
 #### Flatten contracts
 - `npx hardhat flatten` (Flattens and prints contracts and their dependencies)
