@@ -22,10 +22,10 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         uint256 depositTime;        // Time when user deposited.
     }
 
-    IERC20 tokenStaked;         // Address of ERC20 token contract.
-    uint256 lastRewardTime;     // Last time number that ERC20s distribution occurs.
-    uint256 accERC20PerShare;   // Accumulated ERC20s per share, times 1e36.
-    uint256 totalDeposits;      // Total tokens deposited in the farm.
+    IERC20 public tokenStaked;         // Address of ERC20 token contract.
+    uint256 public lastRewardTime;     // Last time number that ERC20s distribution occurs.
+    uint256 public accERC20PerShare;   // Accumulated ERC20s per share, times 1e36.
+    uint256 public totalDeposits;      // Total tokens deposited in the farm.
 
     // If contractor allows early withdraw on stakes
     bool public isEarlyWithdrawAllowed;
