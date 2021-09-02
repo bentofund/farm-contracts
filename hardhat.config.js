@@ -71,6 +71,27 @@ module.exports = {
     local: {
       url: 'http://localhost:8545',
     },
+    mumbai: {
+      url: 'https://rpc-mumbai.matic.today',
+      accounts: [process.env.PK || PK],
+      chainId: 80001,
+      gasPrice: 40000000000, // 44 GWEI gas price for deployment.
+      timeout: 10000000
+    },
+    mumbaiStaging: {
+      url: 'https://rpc-mumbai.matic.today',
+      accounts: [process.env.PK || PK],
+      chainId: 80001,
+      gasPrice: 40000000000, // 44 GWEI gas price for deployment.
+      timeout: 10000000
+    },
+    polygon: {
+      url: 'https://polygon-rpc.com/',
+      accounts: [process.env.PK || PK],
+      chainId: 137,
+      gasPrice: 80000000000,
+      timeout: 10000000
+    },
   },
   solidity: {
     version: '0.6.12',
