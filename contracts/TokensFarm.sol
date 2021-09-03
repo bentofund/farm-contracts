@@ -56,7 +56,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     // Reward fee percent
     uint256 public rewardFeePercent;
     // Fee collector address
-    address payable private feeCollector;
+    address payable public feeCollector;
     // Flat fee amount
     uint256 public flatFeeAmount;
     // Fee option
@@ -94,6 +94,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         require(_stakeFeePercent < 100, "Stake fee must be < 100.");
         require(_rewardFeePercent < 100, "Reward fee must be < 100.");
         require(_feeCollector != address(0x0), "Wrong fee collector address.");
+        require(_congressAddress != address(0x0), "Congress address can not be 0.");
 
         erc20 = _erc20;
         rewardPerSecond = _rewardPerSecond;
@@ -134,7 +135,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     // Fund the farm, increase the end time
     function fund(uint256 _amount) external {
         fundCounter = fundCounter.add(1);
-        
+
         _fundInternal(_amount);
         erc20.safeTransferFrom(address(msg.sender), address(this), _amount);
 
@@ -241,48 +242,36 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
         // Take token and transfer to contract
         tokenStaked.safeTransferFrom(address(msg.sender), address(this), _amount);
+
+        uint256 stakedAmount = _amount;
+
         if (isFlatFeeAllowed) {
             // Collect flat fee
             require(msg.value >= flatFeeAmount);
             (bool sent,) = payable(feeCollector).call{value: msg.value}("");
             require(sent, "Failed to send flat fee");
-
-            // Add amount to the pool total deposits
-            totalDeposits = totalDeposits.add(_amount);
-
-            // Update user accounting
-            stake.amount = _amount;
-            stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
-            stake.depositTime = block.timestamp;
-
-            uint stakeId = stakeInfo[msg.sender].length;
-
-            // Push new stake to array of stakes for user
-            stakeInfo[msg.sender].push(stake);
-
-            // Emit deposit event
-            emit Deposit(msg.sender, stakeId, _amount);
         } else {
-            // Collect stake fee
-            uint256 feeAmount = _amount.div(100).mul(stakeFeePercent);
-            uint256 stakeAmount = _amount.div(feeAmount);
+            // Compute the fee
+            uint256 feeAmount = _amount.mul(stakeFeePercent).div(100);
+            // Compute stake amount
+            stakedAmount = _amount.sub(feeAmount);
+            // Transfer fee to Fee Collector
             tokenStaked.safeTransfer(feeCollector, feeAmount);
             // Add amount to the pool total deposits
-            totalDeposits = totalDeposits.add(stakeAmount);
-
-            // Update user accounting
-            stake.amount = stakeAmount;
-            stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
-            stake.depositTime = block.timestamp;
-
-            uint stakeId = stakeInfo[msg.sender].length;
-
-            // Push new stake to array of stakes for user
-            stakeInfo[msg.sender].push(stake);
-
-            // Emit deposit event
-            emit Deposit(msg.sender, stakeId, stakeAmount);
         }
+
+        // Increase total deposits
+        totalDeposits = totalDeposits.add(stakeAmount);
+        // Update user accounting
+        stake.amount = stakeAmount;
+        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
+        stake.depositTime = block.timestamp;
+        // Compute stake id
+        uint stakeId = stakeInfo[msg.sender].length;
+        // Push new stake to array of stakes for user
+        stakeInfo[msg.sender].push(stake);
+        // Emit deposit event
+        emit Deposit(msg.sender, stakeId, stakedAmount);
     }
 
     // Withdraw ERC20 tokens from Farm.
@@ -400,8 +389,8 @@ contract TokensFarm is Ownable, ReentrancyGuard {
             paidOut += _amount;
         } else {
             // Collect reward fee
-            uint256 feeAmount = _amount.div(100).mul(rewardFeePercent);
-            uint256 rewardAmount = _amount.div(feeAmount);
+            uint256 feeAmount = _amount.mul(rewardFeePercent).div(100);
+            uint256 rewardAmount = _amount.sub(feeAmount);
             erc20.transfer(feeCollector, feeAmount);
             // send reward
             erc20.transfer(_to, rewardAmount);
