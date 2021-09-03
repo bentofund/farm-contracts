@@ -247,7 +247,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
         if (isFlatFeeAllowed) {
             // Collect flat fee
-            require(msg.value >= flatFeeAmount);
+            require(msg.value >= flatFeeAmount, "Payable amount is less than fee amount.");
             (bool sent,) = payable(feeCollector).call{value: msg.value}("");
             require(sent, "Failed to send flat fee");
         } else {
@@ -381,7 +381,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     function _erc20Transfer(address _to, uint256 _amount) internal {
         if (isFlatFeeAllowed) {
             // Collect flat fee
-            require(msg.value >= flatFeeAmount);
+            require(msg.value >= flatFeeAmount, "Payable amount is less than fee amount.");
             (bool sent,) = payable(feeCollector).call{value: msg.value}("");
             require(sent, "Failed to end flat fee");
             // send reward
