@@ -261,7 +261,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         }
 
         // Increase total deposits
-        totalDeposits = totalDeposits.add(stakeAmount);
+        totalDeposits = totalDeposits.add(stakedAmount);
         // Update user accounting
         stake.amount = stakedAmount;
         stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
