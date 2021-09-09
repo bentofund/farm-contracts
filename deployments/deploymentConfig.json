@@ -20,5 +20,43 @@
         "isEarlyWithdrawAllowed": true,
         "penaltyType": 2,
         "congressAddress": "0xb6b4c7ac240b1f176c5589d064733066a83884a1"
+    },
+    "ropsten": {
+        "stakingTokenAddress": "0xD74D196eccf1C5a5220efff4bB628A4ffd31D870",
+        "rewardTokenAddress": "0x6b304e591bfb132d2c9a11e4f016270767200cfd",
+        "startTime": 1630576369,
+        "rewardTokenAmount": 100000,
+        "minTimeToStake": 10,
+        "farmPeriod": 30,
+        "isEarlyWithdrawAllowed": true,
+        "penaltyType": 2,
+        "congressAddress": "0xb6b4c7ac240b1f176c5589d064733066a83884a1"
+    },
+    "mumbai": {
+        "stakingTokenAddress": "0xe72c69b02b4b134fb092d0d083b287cf595ed1e6",
+        "rewardTokenAddress": "0xe72c69b02b4b134fb092d0d083b287cf595ed1e6",
+        "startTime": 1630687829,
+        "rewardTokenAmount": 100000,
+        "minTimeToStake": 0.041,
+        "farmPeriod": 30,
+        "isEarlyWithdrawAllowed": true,
+        "penaltyType": 0,
+        "congressAddress": "0xb6b4c7ac240b1f176c5589d064733066a83884a1"
+    },
+    "bscTestNet": {
+        "stakingTokenAddress": "0x982ef3adcdd6ca45c2344712979e69a34c1ebd1e",
+        "rewardTokenAddress": "0x982ef3adcdd6ca45c2344712979e69a34c1ebd1e",
+        "startTime": 1631025266,
+        "rewardTokenAmount": 100000,
+        "minTimeToStake": 0.041,
+        "farmPeriod": 30,
+        "isEarlyWithdrawAllowed": true,
+        "penaltyType": 0,
+        "congressAddress": "0xb6b4c7ac240b1f176c5589d064733066a83884a1",
+        "stakeFeePercent": 3,
+        "rewardFeePercent": 2,
+        "flatFeeAmount": 0.001,
+        "feeCollector": "0x1b1872BE0f8685B234c487ECec406f7770ca63eD",
+        "isFlatFeeAllowed": true
     }
 }
