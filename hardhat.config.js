@@ -71,48 +71,34 @@ module.exports = {
     local: {
       url: 'http://localhost:8545',
     },
-    mumbai: {
+    'polygon-mumbai': {
       url: 'https://matic-testnet-archive-rpc.bwarelabs.com',
       accounts: [process.env.PK || PK],
       chainId: 80001,
       gasPrice: 40000000000, // 44 GWEI gas price for deployment.
       timeout: 10000000
     },
-    mumbaiStaging: {
-      url: 'https://rpc-mumbai.matic.today',
-      accounts: [process.env.PK || PK],
-      chainId: 80001,
-      gasPrice: 40000000000, // 44 GWEI gas price for deployment.
-      timeout: 10000000
-    },
-    polygon: {
+    'polygon-mainnet': {
       url: 'https://polygon-rpc.com/',
       accounts: [process.env.PK || PK],
       chainId: 137,
       gasPrice: 80000000000,
       timeout: 10000000
     },
-    bsc: {
+    'bsc-mainnet': {
       url: 'https://bsc-dataseed.binance.org/',
       accounts: [process.env.PK || PK],
       chainId: 56,
       gasPrice: 80000000000,
       timeout: 10000000
     },
-    bscTestNet: {
+    'bsc-chapel': {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       accounts: [process.env.PK || PK],
       chainId: 97,
       gasPrice: 80000000000,
       timeout: 10000000
     },
-    bscTestNetStaging: {
-      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
-      accounts: [process.env.PK || PK],
-      chainId: 97,
-      gasPrice: 80000000000,
-      timeout: 10000000
-    }
   },
   solidity: {
     version: '0.6.12',
