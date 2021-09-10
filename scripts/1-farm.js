@@ -54,6 +54,8 @@ async function main() {
   await tokensFarm.deployed();
   console.log('TokensFarm deployed with address: ', tokensFarm.address);
   saveContractAddress(hre.network.name, 'TokensFarm', tokensFarm.address);
+  saveContractAddress(hre.network.name, 'StakingToken', config.stakingTokenAddress);
+  saveContractAddress(hre.network.name, 'RewardToken', config.rewardTokenAddress);
 
   const tokensFarmArtifact = await hre.artifacts.readArtifact("TokensFarm");
   saveContractAbis(hre.network.name, 'TokensFarm', tokensFarmArtifact.abi, hre.network.name);
