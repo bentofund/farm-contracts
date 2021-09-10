@@ -17,7 +17,6 @@ async function main() {
   const rewardPerSecond = Dec(config.rewardTokenAmount.toString() || 0).mul(10 ** rewardTokenDecimals).div(config.farmPeriod).div(secondsInDay).floor().toFixed().toString();
   const minTimeToStake = Math.round(config.minTimeToStake * secondsInDay);
   const flatFeeAmount = Dec(config.flatFeeAmount.toString() || 0).mul(10 ** 18).floor().toFixed().toString();
-  console.log('flatFeeAmount', flatFeeAmount);
 
   const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
   /*
