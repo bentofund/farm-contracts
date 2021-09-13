@@ -7,25 +7,27 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-
 contract TokensFarm is Ownable, ReentrancyGuard {
-
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    enum EarlyWithdrawPenalty { NO_PENALTY, BURN_REWARDS, REDISTRIBUTE_REWARDS }
+    enum EarlyWithdrawPenalty {
+        NO_PENALTY,
+        BURN_REWARDS,
+        REDISTRIBUTE_REWARDS
+    }
 
     // Info of each user.
     struct StakeInfo {
-        uint256 amount;             // How many tokens the user has provided.
-        uint256 rewardDebt;         // Reward debt. See explanation below.
-        uint256 depositTime;        // Time when user deposited.
+        uint256 amount; // How many tokens the user has provided.
+        uint256 rewardDebt; // Reward debt. See explanation below.
+        uint256 depositTime; // Time when user deposited.
     }
 
-    IERC20 public tokenStaked;         // Address of ERC20 token contract.
-    uint256 public lastRewardTime;     // Last time number that ERC20s distribution occurs.
-    uint256 public accERC20PerShare;   // Accumulated ERC20s per share, times 1e18.
-    uint256 public totalDeposits;      // Total tokens deposited in the farm.
+    IERC20 public tokenStaked; // Address of ERC20 token contract.
+    uint256 public lastRewardTime; // Last time number that ERC20s distribution occurs.
+    uint256 public accERC20PerShare; // Accumulated ERC20s per share, times 1e18.
+    uint256 public totalDeposits; // Total tokens deposited in the farm.
 
     // If contractor allows early withdraw on stakes
     bool public isEarlyWithdrawAllowed;
@@ -40,7 +42,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     // Total rewards added to farm
     uint256 public totalRewards;
     // Info of each user that stakes ERC20 tokens.
-    mapping (address => StakeInfo[]) public stakeInfo;
+    mapping(address => StakeInfo[]) public stakeInfo;
     // The time when farming starts.
     uint256 public startTime;
     // The time when farming ends.
@@ -65,7 +67,11 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     // Events
     event Deposit(address indexed user, uint256 stakeId, uint256 amount);
     event Withdraw(address indexed user, uint256 stakeId, uint256 amount);
-    event EmergencyWithdraw(address indexed user, uint256 stakeId, uint256 amount);
+    event EmergencyWithdraw(
+        address indexed user,
+        uint256 stakeId,
+        uint256 amount
+    );
     event EarlyWithdrawPenaltyChange(EarlyWithdrawPenalty penalty);
 
     modifier validateStakeByStakeId(address _user, uint256 stakeId) {
@@ -90,11 +96,17 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     ) public {
         require(address(_erc20) != address(0x0), "Wrong token address.");
         require(_rewardPerSecond > 0, "Rewards per second must be > 0.");
-        require(_startTime >= block.timestamp, "Start timne can not be in the past.");
+        require(
+            _startTime >= block.timestamp,
+            "Start timne can not be in the past."
+        );
         require(_stakeFeePercent < 100, "Stake fee must be < 100.");
         require(_rewardFeePercent < 100, "Reward fee must be < 100.");
         require(_feeCollector != address(0x0), "Wrong fee collector address.");
-        require(_congressAddress != address(0x0), "Congress address can not be 0.");
+        require(
+            _congressAddress != address(0x0),
+            "Congress address can not be 0."
+        );
 
         erc20 = _erc20;
         rewardPerSecond = _rewardPerSecond;
@@ -126,7 +138,10 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
     // Set early withdrawal penalty, if applicable
     function _setEarlyWithdrawPenalty(EarlyWithdrawPenalty _penalty) internal {
-        require(isEarlyWithdrawAllowed, "Early withdrawal is not allowed, so there is no penalty.");
+        require(
+            isEarlyWithdrawAllowed,
+            "Early withdrawal is not allowed, so there is no penalty."
+        );
         penalty = _penalty;
 
         emit EarlyWithdrawPenaltyChange(penalty);
@@ -145,8 +160,11 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     }
 
     // Internally fund the farm by adding farmed rewards by user to the end
-    function _fundInternal(uint _amount) internal {
-        require(block.timestamp < endTime, "fund: too late, the farm is closed");
+    function _fundInternal(uint256 _amount) internal {
+        require(
+            block.timestamp < endTime,
+            "fund: too late, the farm is closed"
+        );
         require(_amount > 0, "Amount must be greater than 0.");
         // Compute new end time
         endTime += _amount.div(rewardPerSecond);
@@ -156,10 +174,18 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
     // Add a new ERC20 token to the pool. Can only be called by the owner.
     function _addPool(IERC20 _tokenStaked) internal {
-        require(address(_tokenStaked) != address(0x0), "Must input valid address.");
-        require(address(tokenStaked) == address(0x0), "Pool can be set only once.");
+        require(
+            address(_tokenStaked) != address(0x0),
+            "Must input valid address."
+        );
+        require(
+            address(tokenStaked) == address(0x0),
+            "Pool can be set only once."
+        );
 
-        uint256 _lastRewardTime = block.timestamp > startTime ? block.timestamp : startTime;
+        uint256 _lastRewardTime = block.timestamp > startTime
+            ? block.timestamp
+            : startTime;
 
         tokenStaked = _tokenStaked;
         lastRewardTime = _lastRewardTime;
@@ -168,16 +194,26 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     }
 
     // View function to see deposited ERC20 token for a user.
-    function deposited(address _user, uint256 stakeId) public view validateStakeByStakeId(_user, stakeId) returns (uint256) {
+    function deposited(address _user, uint256 stakeId)
+        public
+        view
+        validateStakeByStakeId(_user, stakeId)
+        returns (uint256)
+    {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
         return stake.amount;
     }
 
     // View function to see pending ERC20s for a user.
-    function pending(address _user, uint256 stakeId) public view validateStakeByStakeId(_user, stakeId) returns (uint256) {
+    function pending(address _user, uint256 stakeId)
+        public
+        view
+        validateStakeByStakeId(_user, stakeId)
+        returns (uint256)
+    {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
 
-        if(stake.amount == 0) {
+        if (stake.amount == 0) {
             return 0;
         }
 
@@ -185,18 +221,30 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         uint256 tokenSupply = totalDeposits;
 
         if (block.timestamp > lastRewardTime && tokenSupply != 0) {
-            uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
-            uint256 timeToCompare = lastRewardTime < endTime ? lastRewardTime : endTime;
+            uint256 lastTime = block.timestamp < endTime
+                ? block.timestamp
+                : endTime;
+            uint256 timeToCompare = lastRewardTime < endTime
+                ? lastRewardTime
+                : endTime;
             uint256 nrOfSeconds = lastTime.sub(timeToCompare);
             uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
-            _accERC20PerShare = _accERC20PerShare.add(erc20Reward.mul(1e18).div(tokenSupply));
+            _accERC20PerShare = _accERC20PerShare.add(
+                erc20Reward.mul(1e18).div(tokenSupply)
+            );
         }
 
-        return stake.amount.mul(_accERC20PerShare).div(1e18).sub(stake.rewardDebt);
+        return
+            stake.amount.mul(_accERC20PerShare).div(1e18).sub(stake.rewardDebt);
     }
 
     // View function to see deposit timestamp for a user.
-    function depositTimestamp(address _user, uint256 stakeId) public view validateStakeByStakeId(_user, stakeId) returns (uint256) {
+    function depositTimestamp(address _user, uint256 stakeId)
+        public
+        view
+        validateStakeByStakeId(_user, stakeId)
+        returns (uint256)
+    {
         StakeInfo storage stake = stakeInfo[_user][stakeId];
         return stake.depositTime;
     }
@@ -207,13 +255,17 @@ contract TokensFarm is Ownable, ReentrancyGuard {
             return 0;
         }
 
-        uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
+        uint256 lastTime = block.timestamp < endTime
+            ? block.timestamp
+            : endTime;
         return rewardPerSecond.mul(lastTime - startTime).sub(paidOut);
     }
 
     // Update reward variables of the given pool to be up-to-date.
     function updatePool() public {
-        uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
+        uint256 lastTime = block.timestamp < endTime
+            ? block.timestamp
+            : endTime;
 
         if (lastTime <= lastRewardTime) {
             return;
@@ -229,7 +281,9 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         uint256 nrOfSeconds = lastTime.sub(lastRewardTime);
         uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
 
-        accERC20PerShare = accERC20PerShare.add(erc20Reward.mul(1e18).div(tokenSupply));
+        accERC20PerShare = accERC20PerShare.add(
+            erc20Reward.mul(1e18).div(tokenSupply)
+        );
         lastRewardTime = block.timestamp;
     }
 
@@ -241,14 +295,21 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         updatePool();
 
         // Take token and transfer to contract
-        tokenStaked.safeTransferFrom(address(msg.sender), address(this), _amount);
+        tokenStaked.safeTransferFrom(
+            address(msg.sender),
+            address(this),
+            _amount
+        );
 
         uint256 stakedAmount = _amount;
 
         if (isFlatFeeAllowed) {
             // Collect flat fee
-            require(msg.value >= flatFeeAmount, "Payable amount is less than fee amount.");
-            (bool sent,) = payable(feeCollector).call{value: msg.value}("");
+            require(
+                msg.value >= flatFeeAmount,
+                "Payable amount is less than fee amount."
+            );
+            (bool sent, ) = payable(feeCollector).call{value: msg.value}("");
             require(sent, "Failed to send flat fee");
         } else {
             // Compute the fee
@@ -267,7 +328,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e18);
         stake.depositTime = block.timestamp;
         // Compute stake id
-        uint stakeId = stakeInfo[msg.sender].length;
+        uint256 stakeId = stakeInfo[msg.sender].length;
         // Push new stake to array of stakes for user
         stakeInfo[msg.sender].push(stake);
         // Emit deposit event
@@ -275,34 +336,57 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     }
 
     // Withdraw ERC20 tokens from Farm.
-    function withdraw(uint256 _amount, uint256 stakeId) external payable nonReentrant validateStakeByStakeId(msg.sender, stakeId) {
+    function withdraw(uint256 _amount, uint256 stakeId)
+        external
+        payable
+        nonReentrant
+        validateStakeByStakeId(msg.sender, stakeId)
+    {
         bool minimalTimeStakeRespected;
 
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
-        require(stake.amount >= _amount, "withdraw: can't withdraw more than deposit");
+        require(
+            stake.amount >= _amount,
+            "withdraw: can't withdraw more than deposit"
+        );
 
         updatePool();
 
         // if early withdraw is not allowed, user can't withdraw funds before
-        if(!isEarlyWithdrawAllowed) {
-            minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
+        if (!isEarlyWithdrawAllowed) {
+            minimalTimeStakeRespected =
+                stake.depositTime.add(minTimeToStake) <= block.timestamp;
             // Check if user has respected minimal time to stake, require it.
-            require(minimalTimeStakeRespected, "User can not withdraw funds yet.");
+            require(
+                minimalTimeStakeRespected,
+                "User can not withdraw funds yet."
+            );
         }
 
         // Compute pending rewards amount of user rewards
-        uint256 pendingAmount = stake.amount.mul(accERC20PerShare).div(1e18).sub(stake.rewardDebt);
+        uint256 pendingAmount = stake
+            .amount
+            .mul(accERC20PerShare)
+            .div(1e18)
+            .sub(stake.rewardDebt);
 
         // Penalties in case user didn't stake enough time
-        minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
+        minimalTimeStakeRespected =
+            stake.depositTime.add(minTimeToStake) <= block.timestamp;
 
-        if(pendingAmount > 0) {
-            if(penalty == EarlyWithdrawPenalty.BURN_REWARDS && !minimalTimeStakeRespected) {
+        if (pendingAmount > 0) {
+            if (
+                penalty == EarlyWithdrawPenalty.BURN_REWARDS &&
+                !minimalTimeStakeRespected
+            ) {
                 // Burn to address (1)
                 _erc20Transfer(address(1), pendingAmount);
-            } else if (penalty == EarlyWithdrawPenalty.REDISTRIBUTE_REWARDS && !minimalTimeStakeRespected) {
-                if(block.timestamp >= endTime) {
+            } else if (
+                penalty == EarlyWithdrawPenalty.REDISTRIBUTE_REWARDS &&
+                !minimalTimeStakeRespected
+            ) {
+                if (block.timestamp >= endTime) {
                     // Burn rewards because farm can not be funded anymore since it ended
                     _erc20Transfer(address(1), pendingAmount);
                 } else {
@@ -325,16 +409,24 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         emit Withdraw(msg.sender, stakeId, _amount);
     }
 
-
     // Withdraw without caring about rewards. EMERGENCY ONLY.
-    function emergencyWithdraw(uint256 stakeId) external nonReentrant validateStakeByStakeId(msg.sender, stakeId) {
+    function emergencyWithdraw(uint256 stakeId)
+        external
+        nonReentrant
+        validateStakeByStakeId(msg.sender, stakeId)
+    {
         StakeInfo storage stake = stakeInfo[msg.sender][stakeId];
 
         // if early withdraw is not allowed, user can't withdraw funds before
-        if(!isEarlyWithdrawAllowed) {
-            bool minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
+        if (!isEarlyWithdrawAllowed) {
+            bool minimalTimeStakeRespected = stake.depositTime.add(
+                minTimeToStake
+            ) <= block.timestamp;
             // Check if user has respected minimal time to stake, require it.
-            require(minimalTimeStakeRespected, "User can not withdraw funds yet.");
+            require(
+                minimalTimeStakeRespected,
+                "User can not withdraw funds yet."
+            );
         }
 
         tokenStaked.safeTransfer(address(msg.sender), stake.amount);
@@ -347,19 +439,31 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     }
 
     // Get number of stakes user has
-    function getNumberOfUserStakes(address user) external view returns (uint256){
+    function getNumberOfUserStakes(address user)
+        external
+        view
+        returns (uint256)
+    {
         return stakeInfo[user].length;
     }
 
     // Get user pending amounts, stakes and deposit time
-    function getUserStakesAndPendingAmounts(address user) external view returns (uint256[] memory, uint256[] memory, uint256[] memory) {
+    function getUserStakesAndPendingAmounts(address user)
+        external
+        view
+        returns (
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory
+        )
+    {
         uint256 numberOfStakes = stakeInfo[user].length;
 
         uint256[] memory deposits = new uint256[](numberOfStakes);
         uint256[] memory pendingAmounts = new uint256[](numberOfStakes);
         uint256[] memory depositTime = new uint256[](numberOfStakes);
 
-        for (uint i = 0; i < numberOfStakes; i++) {
+        for (uint256 i = 0; i < numberOfStakes; i++) {
             deposits[i] = deposited(user, i);
             pendingAmounts[i] = pending(user, i);
             depositTime[i] = depositTimestamp(user, i);
@@ -369,7 +473,11 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     }
 
     // Get total rewards locked/unlocked
-    function getTotalRewardsLockedUnlocked() external view returns (uint256, uint256) {
+    function getTotalRewardsLockedUnlocked()
+        external
+        view
+        returns (uint256, uint256)
+    {
         uint256 totalRewardsLocked;
         uint256 totalRewardsUnlocked;
 
@@ -377,7 +485,9 @@ contract TokensFarm is Ownable, ReentrancyGuard {
             totalRewardsUnlocked = 0;
             totalRewardsLocked = totalRewards;
         } else {
-            uint256 lastTime = block.timestamp < endTime ? block.timestamp : endTime;
+            uint256 lastTime = block.timestamp < endTime
+                ? block.timestamp
+                : endTime;
             totalRewardsUnlocked = rewardPerSecond.mul(lastTime - startTime);
             totalRewardsLocked = totalRewards - totalRewardsUnlocked;
         }
@@ -389,8 +499,11 @@ contract TokensFarm is Ownable, ReentrancyGuard {
     function _erc20Transfer(address _to, uint256 _amount) internal {
         if (isFlatFeeAllowed) {
             // Collect flat fee
-            require(msg.value >= flatFeeAmount, "Payable amount is less than fee amount.");
-            (bool sent,) = payable(feeCollector).call{value: msg.value}("");
+            require(
+                msg.value >= flatFeeAmount,
+                "Payable amount is less than fee amount."
+            );
+            (bool sent, ) = payable(feeCollector).call{value: msg.value}("");
             require(sent, "Failed to end flat fee");
             // send reward
             erc20.transfer(_to, _amount);
