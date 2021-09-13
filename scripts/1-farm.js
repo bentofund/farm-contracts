@@ -19,22 +19,7 @@ async function main() {
   const flatFeeAmount = Dec(config.flatFeeAmount.toString() || 0).mul(10 ** 18).floor().toFixed().toString();
 
   const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
-  /*
-        IERC20 _erc20,
-        uint256 _rewardPerSecond,
-        uint256 _startTime,
-        uint256 _minTimeToStake,
-        bool _isEarlyWithdrawAllowed,
-        EarlyWithdrawPenalty _penalty,
-        IERC20 _tokenStaked,
-        address _congressAddress,
-        uint256 _stakeFeePercent,
-        uint256 _rewardFeePercent,
-        uint256 _flatFeeAmount,
-        address payable _feeCollector,
-        bool _isFlatFeeAllowed
 
-   */
 
   const tokensFarm = await TokensFarm.deploy(
     config.rewardTokenAddress,
