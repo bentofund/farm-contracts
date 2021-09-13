@@ -24,7 +24,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
     IERC20 public tokenStaked;         // Address of ERC20 token contract.
     uint256 public lastRewardTime;     // Last time number that ERC20s distribution occurs.
-    uint256 public accERC20PerShare;   // Accumulated ERC20s per share, times 1e36.
+    uint256 public accERC20PerShare;   // Accumulated ERC20s per share, times 1e18.
     uint256 public totalDeposits;      // Total tokens deposited in the farm.
 
     // If contractor allows early withdraw on stakes
@@ -189,10 +189,10 @@ contract TokensFarm is Ownable, ReentrancyGuard {
             uint256 timeToCompare = lastRewardTime < endTime ? lastRewardTime : endTime;
             uint256 nrOfSeconds = lastTime.sub(timeToCompare);
             uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
-            _accERC20PerShare = _accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
+            _accERC20PerShare = _accERC20PerShare.add(erc20Reward.mul(1e18).div(tokenSupply));
         }
 
-        return stake.amount.mul(_accERC20PerShare).div(1e36).sub(stake.rewardDebt);
+        return stake.amount.mul(_accERC20PerShare).div(1e18).sub(stake.rewardDebt);
     }
 
     // View function to see deposit timestamp for a user.
@@ -229,7 +229,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         uint256 nrOfSeconds = lastTime.sub(lastRewardTime);
         uint256 erc20Reward = nrOfSeconds.mul(rewardPerSecond);
 
-        accERC20PerShare = accERC20PerShare.add(erc20Reward.mul(1e36).div(tokenSupply));
+        accERC20PerShare = accERC20PerShare.add(erc20Reward.mul(1e18).div(tokenSupply));
         lastRewardTime = block.timestamp;
     }
 
@@ -264,7 +264,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         totalDeposits = totalDeposits.add(stakedAmount);
         // Update user accounting
         stake.amount = stakedAmount;
-        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
+        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e18);
         stake.depositTime = block.timestamp;
         // Compute stake id
         uint stakeId = stakeInfo[msg.sender].length;
@@ -292,7 +292,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         }
 
         // Compute pending rewards amount of user rewards
-        uint256 pendingAmount = stake.amount.mul(accERC20PerShare).div(1e36).sub(stake.rewardDebt);
+        uint256 pendingAmount = stake.amount.mul(accERC20PerShare).div(1e18).sub(stake.rewardDebt);
 
         // Penalties in case user didn't stake enough time
         minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
@@ -316,7 +316,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         }
 
         stake.amount = stake.amount.sub(_amount);
-        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e36);
+        stake.rewardDebt = stake.amount.mul(accERC20PerShare).div(1e18);
 
         tokenStaked.safeTransfer(address(msg.sender), _amount);
         totalDeposits = totalDeposits.sub(_amount);
