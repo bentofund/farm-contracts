@@ -296,15 +296,23 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
         // Penalties in case user didn't stake enough time
         minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
-        if(penalty == EarlyWithdrawPenalty.BURN_REWARDS && !minimalTimeStakeRespected) {
-            // Burn to address (1)
-            _erc20Transfer(address(1), pendingAmount);
-        } else if (penalty == EarlyWithdrawPenalty.REDISTRIBUTE_REWARDS && !minimalTimeStakeRespected) {
-            // Re-fund the farm
-            _fundInternal(pendingAmount);
-        } else {
-            // In case either there's no penalty
-            _erc20Transfer(msg.sender, pendingAmount);
+
+        if(pendingAmount > 0) {
+            if(penalty == EarlyWithdrawPenalty.BURN_REWARDS && !minimalTimeStakeRespected) {
+                // Burn to address (1)
+                _erc20Transfer(address(1), pendingAmount);
+            } else if (penalty == EarlyWithdrawPenalty.REDISTRIBUTE_REWARDS && !minimalTimeStakeRespected) {
+                if(block.timestamp >= endTime) {
+                    // Burn rewards because farm can not be funded anymore since it ended
+                    _erc20Transfer(address(1), pendingAmount);
+                } else {
+                    // Re-fund the farm
+                    _fundInternal(pendingAmount);
+                }
+            } else {
+                // In case either there's no penalty
+                _erc20Transfer(msg.sender, pendingAmount);
+            }
         }
 
         stake.amount = stake.amount.sub(_amount);
