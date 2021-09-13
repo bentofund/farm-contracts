@@ -17,7 +17,6 @@ async function main() {
   const rewardPerSecond = Dec(config.rewardTokenAmount.toString() || 0).mul(10 ** rewardTokenDecimals).div(config.farmPeriod).div(secondsInDay).floor().toFixed().toString();
   const minTimeToStake = Math.round(config.minTimeToStake * secondsInDay);
   const flatFeeAmount = Dec(config.flatFeeAmount.toString() || 0).mul(10 ** 18).floor().toFixed().toString();
-  console.log('flatFeeAmount', flatFeeAmount);
 
   const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
   /*
@@ -55,6 +54,8 @@ async function main() {
   await tokensFarm.deployed();
   console.log('TokensFarm deployed with address: ', tokensFarm.address);
   saveContractAddress(hre.network.name, 'TokensFarm', tokensFarm.address);
+  saveContractAddress(hre.network.name, 'StakingToken', config.stakingTokenAddress);
+  saveContractAddress(hre.network.name, 'RewardToken', config.rewardTokenAddress);
 
   const tokensFarmArtifact = await hre.artifacts.readArtifact("TokensFarm");
   saveContractAbis(hre.network.name, 'TokensFarm', tokensFarmArtifact.abi, hre.network.name);
