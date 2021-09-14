@@ -36,6 +36,7 @@ USERNAME=2key
 - `npx hardhat run --network {network} scripts/{desired_deployment_script}`
 
 #### Deploy code example: 
+- `npx hardhat run --network {network_name} scripts/0-getAssetsInfo.js`
 - `npx hardhat run --network {network_name} scripts/1-farm.js`
 - `npx hardhat run --network {network_name} scripts/2-fund-approve.js`
 - `npx hardhat run --network {network_name} scripts/3-fund-reward.js`
