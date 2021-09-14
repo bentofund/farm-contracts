@@ -503,13 +503,16 @@ contract TokensFarm is Ownable, ReentrancyGuard {
             // send reward
             erc20.transfer(_to, _amount);
             paidOut += _amount;
-        } else {
+        } else if (stakeFeePercent > 0) {
             // Collect reward fee
             uint256 feeAmount = _amount.mul(rewardFeePercent).div(100);
             uint256 rewardAmount = _amount.sub(feeAmount);
             erc20.transfer(feeCollector, feeAmount);
             // send reward
             erc20.transfer(_to, rewardAmount);
+            paidOut += _amount;
+        } else {
+            erc20.transfer(_to, _amount);
             paidOut += _amount;
         }
     }
