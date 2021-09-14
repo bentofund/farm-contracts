@@ -311,14 +311,13 @@ contract TokensFarm is Ownable, ReentrancyGuard {
             );
             (bool sent, ) = payable(feeCollector).call{value: msg.value}("");
             require(sent, "Failed to send flat fee");
-        } else {
+        } else if (stakeFeePercent > 0) { // Handle this case only if flat fee is not allowed, and stakeFeePercent > 0
             // Compute the fee
             uint256 feeAmount = _amount.mul(stakeFeePercent).div(100);
             // Compute stake amount
             stakedAmount = _amount.sub(feeAmount);
             // Transfer fee to Fee Collector
             tokenStaked.safeTransfer(feeCollector, feeAmount);
-            // Add amount to the pool total deposits
         }
 
         // Increase total deposits
