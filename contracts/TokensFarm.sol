@@ -352,11 +352,9 @@ contract TokensFarm is Ownable, ReentrancyGuard {
         );
 
         updatePool();
-
+        minimalTimeStakeRespected = stake.depositTime.add(minTimeToStake) <= block.timestamp;
         // if early withdraw is not allowed, user can't withdraw funds before
         if (!isEarlyWithdrawAllowed) {
-            minimalTimeStakeRespected =
-                stake.depositTime.add(minTimeToStake) <= block.timestamp;
             // Check if user has respected minimal time to stake, require it.
             require(
                 minimalTimeStakeRespected,
@@ -372,8 +370,6 @@ contract TokensFarm is Ownable, ReentrancyGuard {
             .sub(stake.rewardDebt);
 
         // Penalties in case user didn't stake enough time
-        minimalTimeStakeRespected =
-            stake.depositTime.add(minTimeToStake) <= block.timestamp;
 
         if (pendingAmount > 0) {
             if (
