@@ -1,5 +1,15 @@
 {
     "ropsten": {
+        "initialCongressMembers": [
+            "0x126512418bc8eA96414D9f6e414A553Ef816D03E",
+            "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4",
+            "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
+        ],
+        "initialCongressMembersNames": [
+            "Erez",
+            "Eitan",
+            "Nikola"
+        ],
         "stakingTokenAddress": "0xD74D196eccf1C5a5220efff4bB628A4ffd31D870",
         "rewardTokenAddress": "0x6b304e591bfb132d2c9a11e4f016270767200cfd",
         "startTime": 1631266300,
