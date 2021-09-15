@@ -6,9 +6,9 @@
             "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
         ],
         "initialCongressMembersNames": [
-            "Erez",
-            "Eitan",
-            "Nikola"
+            "Keeper1",
+            "Keeper2",
+            "Keeper3"
         ],
         "stakingTokenAddress": "0xD74D196eccf1C5a5220efff4bB628A4ffd31D870",
         "rewardTokenAddress": "0x6b304e591bfb132d2c9a11e4f016270767200cfd",
@@ -64,9 +64,9 @@
             "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
         ],
         "initialCongressMembersNames": [
-            "Erez",
-            "Eitan",
-            "Nikola"
+            "Keeper1",
+            "Keeper2",
+            "Keeper3"
         ]
     },
     "bsc-mainnet": {
@@ -76,9 +76,9 @@
             "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
         ],
         "initialCongressMembersNames": [
-            "Erez",
-            "Eitan",
-            "Nikola"
+            "Keeper1",
+            "Keeper2",
+            "Keeper3"
         ]
     },
     "polygon-mainnet": {
@@ -88,9 +88,9 @@
             "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
         ],
         "initialCongressMembersNames": [
-            "Erez",
-            "Eitan",
-            "Nikola"
+            "Keeper1",
+            "Keeper2",
+            "Keeper3"
         ]
     }
 }
