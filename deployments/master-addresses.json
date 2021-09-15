@@ -2,5 +2,9 @@
     "polygon-mainnet": {
         "TokensFarmCongress": "0xb79B84B38157378fdce05D41bF125942b16a8D1F",
         "TokensFarmCongressMembersRegistry": "0xfEc0d00f4bd79a9980a84916ae36Db0872CD979b"
+    },
+    "bsc-mainnet": {
+        "HordCongress": "0xb79B84B38157378fdce05D41bF125942b16a8D1F",
+        "TokensFarmCongressMembersRegistry": "0xfEc0d00f4bd79a9980a84916ae36Db0872CD979b"
     }
 }
