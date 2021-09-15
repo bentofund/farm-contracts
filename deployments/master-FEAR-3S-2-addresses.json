@@ -1,0 +1,7 @@
+{
+    "polygon-mainnet": {
+        "TokensFarm": "0x37B12E2D7d2A0c41d30787BF59928e75350efF6b",
+        "StakingToken": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C",
+        "RewardToken": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C"
+    }
+}

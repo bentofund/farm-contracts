@@ -2,8 +2,8 @@
     "polygon-mainnet": {
         "stakingTokenAddress": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C",
         "rewardTokenAddress": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C",
-        "startTime": 1631701853,
-        "rewardTokenAmount": 180000,
+        "startTime": 1631703600,
+        "rewardTokenAmount": 10000,
         "minTimeToStake": 10,
         "farmPeriod": 90,
         "isEarlyWithdrawAllowed": true,
