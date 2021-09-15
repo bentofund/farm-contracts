@@ -12,20 +12,9 @@ const toCamel = (s) => {
     });
 };
 
-const checksumNetworkAndBranch = (network, branch) => {
-    if(network === 'ropsten') {
-        assert.strictEqual(branch ,'develop','Wrong branch');
-    } else if(network === 'ropstenStaging') {
-        assert.strictEqual(branch ,'staging','Wrong branch');
-    } else if(network === 'mainnet') {
-        assert.strictEqual(branch ,'master','Wrong branch');
-    }
-}
-
 async function main() {
     const gitBranch = branch.sync();
 
-    checksumNetworkAndBranch(hre.network.name, gitBranch);
     const contracts = getSavedContractAddresses()[hre.network.name]
 
     let contractsToPush = []
