@@ -56,5 +56,41 @@
         "flatFeeAmount": 0.001,
         "feeCollector": "0x1b1872BE0f8685B234c487ECec406f7770ca63eD",
         "isFlatFeeAllowed": true
+    },
+    "mainnet": {
+        "initialCongressMembers": [
+            "0x126512418bc8eA96414D9f6e414A553Ef816D03E",
+            "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4",
+            "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
+        ],
+        "initialCongressMembersNames": [
+            "Erez",
+            "Eitan",
+            "Nikola"
+        ]
+    },
+    "bsc-mainnet": {
+        "initialCongressMembers": [
+            "0x126512418bc8eA96414D9f6e414A553Ef816D03E",
+            "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4",
+            "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
+        ],
+        "initialCongressMembersNames": [
+            "Erez",
+            "Eitan",
+            "Nikola"
+        ]
+    },
+    "polygon-mainnet": {
+        "initialCongressMembers": [
+            "0x126512418bc8eA96414D9f6e414A553Ef816D03E",
+            "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4",
+            "0xfE597d4BFa6D16b3a42510b0b9A5d69E45a2F0E2"
+        ],
+        "initialCongressMembersNames": [
+            "Erez",
+            "Eitan",
+            "Nikola"
+        ]
     }
 }
