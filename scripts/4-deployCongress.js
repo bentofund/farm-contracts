@@ -1,8 +1,24 @@
 const hre = require("hardhat");
-const { hexify, toHordDenomination } = require('../test/setup');
 const { saveContractAddress } = require('./utils')
 let c = require('../deployments/deploymentConfig.json');
 
+const hexify = (names) =>  {
+    let resp = [];
+
+    for(const name of names) {
+        let hexed = web3.utils.toHex(name);
+        let prefix = '0x';
+        let hexValue = hexed.slice(2);
+
+        while(hexValue.length < 64) {
+            hexValue = '0' + hexValue
+        }
+
+        resp.push(prefix + hexValue);
+    }
+
+    return resp;
+}
 async function main() {
     await hre.run('compile');
 
