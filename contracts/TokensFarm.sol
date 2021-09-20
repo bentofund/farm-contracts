@@ -138,12 +138,7 @@ contract TokensFarm is Ownable, ReentrancyGuard {
 
     // Set early withdrawal penalty, if applicable
     function _setEarlyWithdrawPenalty(EarlyWithdrawPenalty _penalty) internal {
-        require(
-            isEarlyWithdrawAllowed,
-            "Early withdrawal is not allowed, so there is no penalty."
-        );
         penalty = _penalty;
-
         emit EarlyWithdrawPenaltyChange(penalty);
     }
 
