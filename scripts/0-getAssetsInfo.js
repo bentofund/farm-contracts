@@ -49,7 +49,8 @@ async function main() {
     singleAssets[lpSingleToken2.symbol] = lpSingleToken2;
 
     farmAsset.label = `${lpSingleToken1.symbol}-${lpSingleToken2.symbol}`;
-    farmAsset.shortLabel = rewardToken.symbol;
+    farmAsset.shortLabel = farmAsset.label;
+    // farmAsset.shortLabel = rewardToken.symbol;
     farmAsset.symbol = 'StakingToken';
     farmAsset.assets = [lpSingleToken1, lpSingleToken2]
 
