@@ -1,9 +1,7 @@
 const hre = require("hardhat");
 const Dec = require('decimal.js');
-const { getSavedContractAddresses, saveContractAddress, saveContractAbis } = require('./utils');
-const { ethers, web3, upgrades } = hre;
+const { saveContractAddress, saveContractAbis } = require('./utils');
 let c = require('../deployments/deploymentConfig.json');
-const { BigNumber } = require("@ethersproject/bignumber");
 
 async function main() {
   const config = c[hre.network.name];
