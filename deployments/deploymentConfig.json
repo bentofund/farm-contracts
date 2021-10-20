@@ -1,0 +1,18 @@
+{
+    "polygon-mainnet": {
+        "stakingTokenAddress": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C",
+        "rewardTokenAddress": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C",
+        "startTime": 1631703600,
+        "rewardTokenAmount": 10000,
+        "minTimeToStake": 10,
+        "farmPeriod": 90,
+        "isEarlyWithdrawAllowed": true,
+        "penaltyType": 2,
+        "congressAddress": "0xb79B84B38157378fdce05D41bF125942b16a8D1F",
+        "stakeFeePercent": 0,
+        "rewardFeePercent": 0,
+        "flatFeeAmount": 0.75,
+        "feeCollector": "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4",
+        "isFlatFeeAllowed": true
+    }
+}
