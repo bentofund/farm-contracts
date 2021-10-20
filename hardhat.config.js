@@ -92,7 +92,7 @@ module.exports = {
       gasPrice: 20000000000,
       timeout: 10000000
     },
-    'bsc-chapel': {
+    'bsc-testnet': {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       accounts: [process.env.PK || PK],
       chainId: 97,

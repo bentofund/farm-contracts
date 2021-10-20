@@ -1,0 +1,45 @@
+{
+  "bsc-testnet": {
+    "singleAssets": [
+      {
+        "symbol": "ETH",
+        "label": "ETH",
+        "decimals": 18,
+        "address": "0x0"
+      },
+      {
+        "address": "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd",
+        "name": "USDT Token",
+        "label": "USDT Token",
+        "symbol": "USDT",
+        "decimals": 18
+      }
+    ],
+    "farmAssets": [
+      {
+        "address": "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd",
+        "name": "USDT Token",
+        "label": "USDT",
+        "symbol": "StakingToken",
+        "decimals": 18,
+        "shortLabel": "USDT",
+        "assets": [
+          {
+            "address": "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd",
+            "name": "USDT Token",
+            "label": "USDT Token",
+            "symbol": "USDT",
+            "decimals": 18
+          },
+          {
+            "address": "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd",
+            "name": "USDT Token",
+            "label": "USDT Token",
+            "symbol": "USDT",
+            "decimals": 18
+          }
+        ]
+      }
+    ]
+  }
+}

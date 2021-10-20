@@ -6,5 +6,10 @@
     "bsc-mainnet": {
         "HordCongress": "0xb79B84B38157378fdce05D41bF125942b16a8D1F",
         "TokensFarmCongressMembersRegistry": "0xfEc0d00f4bd79a9980a84916ae36Db0872CD979b"
+    },
+    "bsc-testnet": {
+        "TokensFarm": "0x898BB502cc2f6F552b91235FA859B8F26faA9CfA",
+        "StakingToken": "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd",
+        "RewardToken": "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd"
     }
 }
