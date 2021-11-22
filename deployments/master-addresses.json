@@ -21,7 +21,7 @@
     "bsc-testnet": {
         "BFCCongress": "0x5fF06c566EAC08A98e4C312CCF1fe275790B4A04",
         "TokensFarmCongressMembersRegistry": "0x195b5C6cB8ED99d300ee90A67dC418d47DB8f1f2",
-        "TokensFarm": "0xb6bCfd25F8169398d46Cb37e4654A0D6c9f89Ae4",
+        "TokensFarm": "0x158De78C85908fC8b593e72C26F04A2C17f564E1",
         "StakingToken": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684",
         "RewardToken": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684"
     }

@@ -16,6 +16,7 @@ async function main() {
 
   const tokensFarmArtifact = await hre.artifacts.readArtifact("TokensFarm");
   const tokensFarm = await hre.ethers.getContractAt(tokensFarmArtifact.abi, contracts["TokensFarm"]);
+  console.log('rewardTokenAmount: ', rewardTokenAmount);
   await tokensFarm.fund(rewardTokenAmount);
   console.log('Farm funded properly.');
 }

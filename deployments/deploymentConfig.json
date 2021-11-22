@@ -2,7 +2,7 @@
     "bsc-testnet": {
         "stakingTokenAddress": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684",
         "rewardTokenAddress": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684",
-        "startTime": 1637551526,
+        "startTime": 1637554748,
         "rewardTokenAmount": 1000,
         "minTimeToStake": 1,
         "farmPeriod": 100,
