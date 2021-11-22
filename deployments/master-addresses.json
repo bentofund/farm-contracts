@@ -6,5 +6,23 @@
     "bsc-mainnet": {
         "HordCongress": "0xb79B84B38157378fdce05D41bF125942b16a8D1F",
         "TokensFarmCongressMembersRegistry": "0xfEc0d00f4bd79a9980a84916ae36Db0872CD979b"
+    },
+    "bsc-testnet-1st-deployment-by-terry": {
+        "HordCongress": "0xd0b2531a1E1460ab5482f28ee38603B5474FdFAF",
+        "TokensFarm": "0x1f07A52BE465079551a5d0Bc0a53D52f69CA6F21",
+        "StakingToken": "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
+        "RewardToken": "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
+    },
+    "bsc-testnet-2nd-deployment-by-terry": {
+        "TokensFarm": "0x5108f14F29552e3AD08f36C7444D8A8e572508A0",
+        "StakingToken": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684",
+        "RewardToken": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684"
+    },
+    "bsc-testnet": {
+        "BFCCongress": "0x5fF06c566EAC08A98e4C312CCF1fe275790B4A04",
+        "TokensFarmCongressMembersRegistry": "0x195b5C6cB8ED99d300ee90A67dC418d47DB8f1f2",
+        "TokensFarm": "0xb6bCfd25F8169398d46Cb37e4654A0D6c9f89Ae4",
+        "StakingToken": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684",
+        "RewardToken": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684"
     }
 }

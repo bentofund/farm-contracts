@@ -28,7 +28,7 @@ async function main() {
     const tokensfarmCongress = await TokensFarmCongress.deploy();
     await tokensfarmCongress.deployed();
     console.log("TokensFarmCongress contract deployed to:", tokensfarmCongress.address);
-    saveContractAddress(hre.network.name, 'HordCongress', tokensfarmCongress.address);
+    saveContractAddress(hre.network.name, 'BFCCongress', tokensfarmCongress.address);
 
     const TokensFarmCongressMembersRegistry = await hre.ethers.getContractFactory("TokensFarmCongressMembersRegistry");
     const tokensFarmCongressMembersRegistry = await TokensFarmCongressMembersRegistry.deploy(

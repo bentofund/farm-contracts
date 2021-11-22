@@ -5,6 +5,7 @@ let c = require('../deployments/deploymentConfig.json');
 
 async function main() {
   const config = c[hre.network.name];
+  console.log('config: ', config);
 
   const erc20Artifact = await hre.artifacts.readArtifact("ERC20Mock");
   const rewardToken = await hre.ethers.getContractAt(erc20Artifact.abi, config.rewardTokenAddress);
@@ -18,6 +19,22 @@ async function main() {
 
   const TokensFarm = await hre.ethers.getContractFactory('TokensFarm');
 
+  const constructorParams = {
+    rewardTokenAddress: config.rewardTokenAddress,
+    rewardPerSecond: rewardPerSecond,
+    startTime: config.startTime,
+    minTimeToStake: minTimeToStake,
+    isEarlyWithdrawAllowed: config.isEarlyWithdrawAllowed,
+    penaltyType: config.penaltyType,
+    stakingTokenAddress: config.stakingTokenAddress,
+    congressAddress: config.congressAddress,
+    stakeFeePercent: config.stakeFeePercent,
+    rewardFeePercent: config.rewardFeePercent,
+    flatFeeAmount: flatFeeAmount,
+    feeCollector: config.feeCollector,
+    isFlatFeeAllowed: config.isFlatFeeAllowed,
+  };
+  console.log('constructorParams: ', constructorParams); // for verify contract source code
 
   const tokensFarm = await TokensFarm.deploy(
     config.rewardTokenAddress,

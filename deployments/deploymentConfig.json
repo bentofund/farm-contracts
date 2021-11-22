@@ -1,18 +1,20 @@
 {
-    "polygon-mainnet": {
-        "stakingTokenAddress": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C",
-        "rewardTokenAddress": "0xa2CA40DBe72028D3Ac78B5250a8CB8c404e7Fb8C",
-        "startTime": 1631703600,
-        "rewardTokenAmount": 10000,
-        "minTimeToStake": 10,
-        "farmPeriod": 90,
+    "bsc-testnet": {
+        "stakingTokenAddress": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684",
+        "rewardTokenAddress": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684",
+        "startTime": 1637551526,
+        "rewardTokenAmount": 1000,
+        "minTimeToStake": 1,
+        "farmPeriod": 100,
         "isEarlyWithdrawAllowed": true,
-        "penaltyType": 2,
-        "congressAddress": "0xb79B84B38157378fdce05D41bF125942b16a8D1F",
+        "penaltyType": 0,
+        "congressAddress": "0x5fF06c566EAC08A98e4C312CCF1fe275790B4A04",
         "stakeFeePercent": 0,
         "rewardFeePercent": 0,
-        "flatFeeAmount": 0.75,
-        "feeCollector": "0x2AD0606097905292F92dAA48bcaF5b9e1C555BC4",
-        "isFlatFeeAllowed": true
+        "flatFeeAmount": 0,
+        "feeCollector": "0xDAAAD51a108F0cd3A3D56405e288885cD6586AbB",
+        "isFlatFeeAllowed": false,
+        "initialCongressMembers": ["0xDAAAD51a108F0cd3A3D56405e288885cD6586AbB","0x06D0dEC9fb5Ee3B1097288714F0C73a89dd36381"],
+        "initialCongressMembersNames": ["tieying", "terry"]
     }
 }
